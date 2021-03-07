@@ -45,34 +45,28 @@ type connection struct {
 func (s subscription) readPump() {
 	c := s.conn
 	defer func() {
-		//fmt.Println("defer di readpump")
 		h.unregister <- s
 		c.ws.Close()
 	}()
 	c.ws.SetReadLimit(maxMessageSize)
 	err := c.ws.SetReadDeadline(time.Now().Add(pongWait))
 	if err != nil {
-		//log.Printf("error saat setReadDeadline")
+		log.Printf("error saat setReadDeadline")
 	} else {
 		c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 		for {
-			c.mu.Lock()
 			_, msg, err := c.ws.ReadMessage()
-			c.mu.Unlock()
 			if err != nil {
-				//fmt.Println("exit")
-				//c.ws.Close()
-				c.mu.Lock()
+
 				c.write(websocket.CloseMessage, []byte{})
-				c.mu.Unlock()
-				//log.Printf("ada error nih waktu nge read message dari ws")
-				//log.Printf("error: %v", err)
+				log.Printf("ada error nih waktu nge read message dari ws")
+				log.Printf("error: %v", err)
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					//log.Printf("error waktu nge read : unexpectedcloseerror")
-					//log.Printf("error: %v", err)
+					log.Printf("error waktu nge read : unexpectedcloseerror")
+					log.Printf("error: %v", err)
 				} else {
-					// log.Printf("ada error nih waktu nge read message dari ws")
-					// log.Printf("error: %v", err)
+					log.Printf("ada error nih waktu nge read message dari ws")
+					log.Printf("error: %v", err)
 				}
 				break
 			}
@@ -88,6 +82,8 @@ func (s subscription) readPump() {
 //mt itu messageType
 func (c *connection) write(mt int, payload []byte) error {
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.ws.WriteMessage(mt, payload)
 }
 
@@ -96,34 +92,24 @@ func (s *subscription) writePump() {
 	c := s.conn
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		//fmt.Println("defer di writepump")
 		ticker.Stop()
 		c.ws.Close()
 	}()
 	for {
 		select {
 		case message, ok := <-c.send: //jika ada pesan masuk ke dalam channel send di koneksi tertentu, maka kirim pesan tsb ke websocket
-			//fmt.Println("ada pesan masuk ke dalam room")
-			//fmt.Println("ok atau tidak", ok)
-			//fmt.Println("messagenya adalah : ", message)
 
 			if !ok {
-				c.mu.Lock()
 				c.write(websocket.CloseMessage, []byte{}) //write ke ws, tipe write nya adalah close message, isinya adalah {}
-				c.mu.Unlock()
 				return
 			}
-			c.mu.Lock()
 			err := c.write(websocket.TextMessage, message)
-			c.mu.Unlock()
 			if err != nil { //coba write ke ws, tipenya adalah textmessage, isinya adalah variabel message, kalau tidak error maka
 				return
 			}
 
 		case <-ticker.C: //keknya, kalau roomnya timeout maka
-			c.mu.Lock()
 			err := c.write(websocket.PingMessage, []byte{})
-			c.mu.Unlock()
 			if err != nil {
 				return
 			}
@@ -134,7 +120,6 @@ func (s *subscription) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func serveWs(w http.ResponseWriter, r *http.Request, roomId string) {
-	// fmt.Println("masuk fungsi serveWs")
 
 	//1. upgrade protocol from http to websocket
 	//then, save the connection to variable ws
@@ -151,7 +136,6 @@ func serveWs(w http.ResponseWriter, r *http.Request, roomId string) {
 	s := subscription{c, roomId}
 
 	//4. register this subscription to hub
-	// fmt.Println("send subscriber to register channel")
 	h.register <- s
 
 	//5. run this function on background
