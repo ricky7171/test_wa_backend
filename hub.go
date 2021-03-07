@@ -41,23 +41,16 @@ var h = hub{
 }
 
 func (h *hub) run() {
-	// fmt.Println("masuk fungsi h.run")
 	for {
-		// fmt.Println("loop di for h.run")
 		select {
 		case s := <-h.register: //kalau ada subs yg register
-			// fmt.Println("ada subs yang register")
 			connections := h.rooms[s.room] //cek koneksi di room tersebut
 			if connections == nil {        //kalau belum ada koneksi atau room tsb masih belum ada, maka inisialisasi koneksi KOSONG baru di room tsb
 				connections = make(map[*connection]bool) //inisialisasi koneksi baru
 				h.rooms[s.room] = connections            //masukan koneksi baru tersebut ke room tadi
 			}
 			h.rooms[s.room][s.conn] = true //catat, di room tersebut dengan koneksi tsb (yg didapat dari subs) sudah hidup / true.
-			// fmt.Println("cek data h.rooms")
-			// fmt.Println(h.rooms)
-			// fmt.Println("selesai cek data h.rooms")
 		case s := <-h.unregister: //kalau ada subs yang unregister
-			// fmt.Println("ada subs yang unregister")
 			connections := h.rooms[s.room] //cek koneksi di room tersebut
 			if connections != nil {        //kalau sudah ada koneksinya
 				if _, ok := connections[s.conn]; ok { //kalau koneksinya hidup / true
@@ -68,11 +61,7 @@ func (h *hub) run() {
 					}
 				}
 			}
-			// fmt.Println("cek data h.rooms")
-			// fmt.Println(h.rooms)
-			// fmt.Println("selesai cek data h.rooms")
 		case m := <-h.broadcast: //kalau ada broadcast/message masuk
-			// fmt.Println("ada pesan masuk di room", m.room, "dengan data", m.data)
 			connections := h.rooms[m.room]
 			for c := range connections { //loop semua koneksi yang ada di room tersebut
 				select {
