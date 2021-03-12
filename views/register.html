@@ -1,0 +1,81 @@
+<html lang="en">
+
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            display: table;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body>div {
+            vertical-align: middle;
+            display: table-cell;
+        }
+
+        .form input {
+            width: 500px;
+            height: 50px;
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div h1 {
+            text-align: center;
+        }
+        div h2 {
+            text-align: center;
+            margin-bottom: 75px;
+        }
+        div p {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>MY WHATSAPP</h1>
+        <h2>Register</h2>
+        <div class='form'>
+            <input type="text" placeholder="type your name" id="inputName" />
+            <input type="text" placeholder="type your phone number" id="inputPhone" />
+            <input type="password" placeholder="type your password" id="inputPassword" />
+            <input type="button" value="register" id="submitRegister">
+        </div>
+        <p>Have an account? <a href='/login'>Log in</a></p>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $("#submitRegister").click(function () {
+        var body = {
+            "name": $("#inputName").val(),
+            "phonenumber": $("#inputPhone").val(),
+            "password": $("#inputPassword").val(),
+        };
+        $.ajax({
+            type: "POST",
+            url: "api/auth/register",
+            data: body,
+            dataType: "json",
+            success: function (data, textStatus) {
+                console.log(data);
+                if(data['error']) {
+                    alert("phone number already registered !");
+                } else {
+                    $(location).attr('href', '/home');
+                }
+            }
+        });
+        
+    });
+</script>
+
+</html>

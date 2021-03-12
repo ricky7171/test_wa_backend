@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Chat Example</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style type="text/css">
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: #eaecf5;
+        }
+
+        #log {
+            background: white;
+            margin: 0;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            top: 0.5em;
+            left: 0.5em;
+            right: 0.5em;
+            bottom: 3em;
+            overflow: auto;
+            height: calc(100% - 60px);
+        }
+
+        #form {
+            padding: 0.5em 0.5em;
+            margin: 0;
+            bottom: 1em;
+            left: 0px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .column_left,
+        .column_right {
+            height: 100vh;
+            vertical-align: top;
+            display: inline-block;
+        }
+
+        .column_left {
+            width: 20%;
+            overflow: scroll;
+        }
+
+        .column_right {
+            width: 78%;
+        }
+
+        #contacts {
+            padding: 0px 10px 10px 10px;
+
+        }
+
+
+        #contacts .person {
+            border-bottom: 0.5px solid lightgray;
+            margin: 5px 0px;
+            padding: 5px;
+        }
+
+        #contacts .person:hover {
+            cursor: pointer;
+            background-color: #ced7de;
+        }
+
+        #contacts .person h4 {
+            margin-bottom: 0px;
+        }
+
+        #contacts .person p {
+            margin-top: 0px;
+        }
+
+        #popup_new_message {
+            position: absolute;
+            width: 300px;
+            height: 225px;
+            background-color: darkgray;
+            left: 40%;
+            top: 30%;
+            text-align: center;
+        }
+
+        #popup_new_message input {
+            margin-bottom: 10px;
+        }
+
+        .bg_popup {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        #send_new_message_button {
+            width: 90%;
+            height: 30px;
+            margin: 10px;
+        }
+
+        .chat_right {
+            text-align: right;
+        }
+
+        .chat_left,
+        .chat_right {
+            margin-bottom: 15px;
+        }
+        .my_info {
+        
+        }
+        .my_info p, .my_info a {
+            font-size: 16px;
+            font-weight: bold;
+            font-family: sans-serif;
+            margin:10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class='bg_popup'>
+        <div id='popup_new_message'>
+            <p>Enter phone number :</p>
+            <input type='text' />
+            <p>Enter your message :</p>
+            <input type='text' />
+            <button id='send_message_now_button'>Send message to this number</button>
+            <button id='close_popup'>Cancel</button>
+        </div>
+    </div>
+
+    <div style='height:100%'>
+        <div class='column_left'>
+            <div class='my_info'>
+                <p>Samuel Ricky <a href='/login'>(logout)</a></p>
+                <p>085727322755</p>
+            </div>
+            <button id='send_new_message_button'>Send New Message</button>
+            <div id='contacts'>
+                <div class='person'>
+                    <h4>Roy</h4>
+                    <p>Okeee</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Tomas</h4>
+                    <p>Semoga berhasil tommm</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Setiawan</h4>
+                    <p>Wannn lagi apa ?</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Yoga</h4>
+                    <p>Yog, pak hoi aman ?</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Roy</h4>
+                    <p>Okeee</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Tomas</h4>
+                    <p>Semoga berhasil tommm</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Setiawan</h4>
+                    <p>Wannn lagi apa ?</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Yoga</h4>
+                    <p>Yog, pak hoi aman ?</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Roy</h4>
+                    <p>Okeee</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Tomas</h4>
+                    <p>Semoga berhasil tommm</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Setiawan</h4>
+                    <p>Wannn lagi apa ?</p>
+                </div>
+
+                <div class='person'>
+                    <h4>Yoga</h4>
+                    <p>Yog, pak hoi aman ?</p>
+                </div>
+            </div>
+        </div>
+        <div class='column_right'>
+            <div id="log">
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Halo rik</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>Halo juga wan</p>
+                </div>
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Lagi apa kamu ?</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>Lagi makan, kamu ?</p>
+                </div>
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Eh sama wkwkkwkw</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>wkkwkw kok bisa ya.</p>
+                </div>
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Halo rik</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>Halo juga wan</p>
+                </div>
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Lagi apa kamu ?</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>Lagi makan, kamu ?</p>
+                </div>
+                <div class='chat_left'>
+                    <b>Setiawan : </b>
+                    <p>Eh sama wkwkkwkw</p>
+                </div>
+                <div class='chat_right'>
+                    <b>Me : </b>
+                    <p>wkkwkw kok bisa ya.</p>
+                </div>
+            </div>
+            <form id="form">
+                <input type="text" id="msg" style="width: 92%;" autofocus />
+                <input type="submit" value="Send" />
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $(".bg_popup").hide();
+            $("#send_new_message_button").click(function () {
+                $(".bg_popup").show();
+            })
+            $("#close_popup").click(function () {
+                $(".bg_popup").hide();
+            })
+            let conn;
+            let msg = document.getElementById("msg");
+            let log = document.getElementById("log");
+
+            function appendLog(item) {
+                let doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+                log.appendChild(item);
+                if (doScroll) {
+                    log.scrollTop = log.scrollHeight - log.clientHeight;
+                }
+            }
+
+            document.getElementById("form").onsubmit = function () {
+                if (!conn) {
+                    return false;
+                }
+                if (!msg.value) {
+                    return false;
+                }
+                conn.send(msg.value);
+                msg.value = "";
+                return false;
+            };
+
+            if (window["WebSocket"]) {
+                const params = window.location.href.split("/");
+                const roomId = params[params.length - 1];
+                conn = new WebSocket("ws://" + document.location.host + "/ws/" + roomId);
+                conn.onclose = function (evt) {
+                    let item = document.createElement("div");
+                    item.innerHTML = "<b>Connection closed.</b>";
+                    appendLog(item);
+                };
+                conn.onmessage = function (evt) {
+                    let messages = evt.data.split('\n');
+                    for (let i = 0; i < messages.length; i++) {
+                        let item = document.createElement("div");
+                        item.innerText = messages[i];
+                        appendLog(item);
+                    }
+                };
+            } else {
+                let item = document.createElement("div");
+                item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+                appendLog(item);
+            }
+        });
+    </script>
+</body>
+
+</html>
