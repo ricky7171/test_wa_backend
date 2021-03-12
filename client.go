@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
@@ -55,7 +56,7 @@ func (s subscription) readPump() {
 	} else {
 		c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 		for {
-			_, msg, err := c.ws.ReadMessage()
+			_, msg, err := c.ws.ReadMessage() //nungguin message masuk dari websocket
 			if err != nil {
 
 				c.write(websocket.CloseMessage, []byte{})
@@ -70,8 +71,30 @@ func (s subscription) readPump() {
 				}
 				break
 			}
-			m := message{msg, s.room}
-			h.broadcast <- m
+
+			//convert plain message data to formated message struct
+
+			//example messageMap :
+			//{"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
+			var messageMap map[string]interface{}
+			if err := json.Unmarshal(msg, &messageMap); err != nil {
+				panic(err)
+			}
+
+			dataIsCorrect := false
+			if data, ok := messageMap["data"].([]byte); ok {
+				if fromUserID, ok := messageMap["fromUserId"].(int); ok {
+					if toUserID, ok := messageMap["toUserId"].(int); ok {
+						dataIsCorrect = true
+						m := message{data, fromUserID, toUserID}
+						h.broadcast <- m
+					}
+				}
+			}
+			if !dataIsCorrect {
+				break
+			}
+
 		}
 
 	}
@@ -97,13 +120,13 @@ func (s *subscription) writePump() {
 	}()
 	for {
 		select {
-		case message, ok := <-c.send: //jika ada pesan masuk ke dalam channel send di koneksi tertentu, maka kirim pesan tsb ke websocket
+		case messageInByte, ok := <-c.send: //jika ada pesan masuk ke dalam channel send di koneksi tertentu, maka kirim pesan tsb ke websocket
 
 			if !ok {
 				c.write(websocket.CloseMessage, []byte{}) //write ke ws, tipe write nya adalah close message, isinya adalah {}
 				return
 			}
-			err := c.write(websocket.TextMessage, message)
+			err := c.write(websocket.TextMessage, messageInByte)
 			if err != nil { //coba write ke ws, tipenya adalah textmessage, isinya adalah variabel message, kalau tidak error maka
 				return
 			}
@@ -119,7 +142,7 @@ func (s *subscription) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(w http.ResponseWriter, r *http.Request, roomId string) {
+func serveWs(w http.ResponseWriter, r *http.Request, userID int) {
 
 	//1. upgrade protocol from http to websocket
 	//then, save the connection to variable ws
@@ -133,7 +156,7 @@ func serveWs(w http.ResponseWriter, r *http.Request, roomId string) {
 	c := &connection{send: make(chan []byte, 256), ws: ws}
 
 	//3. make subscription instance (this explain that we make subscription with room : roomId and con : c)
-	s := subscription{c, roomId}
+	s := subscription{c, userID}
 
 	//4. register this subscription to hub
 	h.register <- s
