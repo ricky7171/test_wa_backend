@@ -72,12 +72,9 @@
             background-color: #ced7de;
         }
 
-        #contacts .person h4 {
+        #contacts .person h3 {
             margin-bottom: 0px;
-        }
-
-        #contacts .person p {
-            margin-top: 0px;
+            margin-top: 5px;
         }
 
         #popup_new_message {
@@ -115,14 +112,24 @@
         .chat_right {
             margin-bottom: 15px;
         }
-        .my_info {
-        
-        }
-        .my_info p, .my_info a {
+
+        .my_info {}
+
+        .my_info p,
+        .my_info a {
             font-size: 16px;
             font-weight: bold;
             font-family: sans-serif;
-            margin:10px;
+            margin: 10px;
+        }
+
+        #log .chat_message,
+        #log .chat_datetime {
+            margin: 5px 0px;
+        }
+
+        #log .chat_datetime {
+            font-size: 12px;
         }
     </style>
 </head>
@@ -131,9 +138,9 @@
     <div class='bg_popup'>
         <div id='popup_new_message'>
             <p>Enter phone number :</p>
-            <input type='text' />
+            <input type='text' id="input_new_phone_number"/>
             <p>Enter your message :</p>
-            <input type='text' />
+            <input type='text' id="input_new_message"/>
             <button id='send_message_now_button'>Send message to this number</button>
             <button id='close_popup'>Cancel</button>
         </div>
@@ -142,126 +149,34 @@
     <div style='height:100%'>
         <div class='column_left'>
             <div class='my_info'>
-                <p>Samuel Ricky <a href='/login'>(logout)</a></p>
-                <p>085727322755</p>
+                <p><label id='my_name'>Samuel Ricky</label> <a href='/login'>(logout)</a></p>
+                <p id="my_phone">085727322755</p>
             </div>
             <button id='send_new_message_button'>Send New Message</button>
             <div id='contacts'>
-                <div class='person'>
-                    <h4>Roy</h4>
-                    <p>Okeee</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Tomas</h4>
-                    <p>Semoga berhasil tommm</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Setiawan</h4>
-                    <p>Wannn lagi apa ?</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Yoga</h4>
-                    <p>Yog, pak hoi aman ?</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Roy</h4>
-                    <p>Okeee</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Tomas</h4>
-                    <p>Semoga berhasil tommm</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Setiawan</h4>
-                    <p>Wannn lagi apa ?</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Yoga</h4>
-                    <p>Yog, pak hoi aman ?</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Roy</h4>
-                    <p>Okeee</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Tomas</h4>
-                    <p>Semoga berhasil tommm</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Setiawan</h4>
-                    <p>Wannn lagi apa ?</p>
-                </div>
-
-                <div class='person'>
-                    <h4>Yoga</h4>
-                    <p>Yog, pak hoi aman ?</p>
-                </div>
+                <!-- LIST CONTACT -->
+                <!-- Example :  -->
+                <!-- <div class='person' room_id="y111" user_id="x123"><h3> Budi </h3></div> -->
             </div>
         </div>
         <div class='column_right'>
             <div id="log">
-                <div class='chat_left'>
+                <!-- CHAT LOG -->
+                <!-- Example :  -->
+                <!-- <div class='chat_left'>
                     <b>Setiawan : </b>
-                    <p>Halo rik</p>
+                    <p class='chat_message'>Halo rik</p>
+                    <p class='chat_datetime'>12/12/2020 20:20:00</p>
                 </div>
                 <div class='chat_right'>
                     <b>Me : </b>
-                    <p>Halo juga wan</p>
-                </div>
-                <div class='chat_left'>
-                    <b>Setiawan : </b>
-                    <p>Lagi apa kamu ?</p>
-                </div>
-                <div class='chat_right'>
-                    <b>Me : </b>
-                    <p>Lagi makan, kamu ?</p>
-                </div>
-                <div class='chat_left'>
-                    <b>Setiawan : </b>
-                    <p>Eh sama wkwkkwkw</p>
-                </div>
-                <div class='chat_right'>
-                    <b>Me : </b>
-                    <p>wkkwkw kok bisa ya.</p>
-                </div>
-                <div class='chat_left'>
-                    <b>Setiawan : </b>
-                    <p>Halo rik</p>
-                </div>
-                <div class='chat_right'>
-                    <b>Me : </b>
-                    <p>Halo juga wan</p>
-                </div>
-                <div class='chat_left'>
-                    <b>Setiawan : </b>
-                    <p>Lagi apa kamu ?</p>
-                </div>
-                <div class='chat_right'>
-                    <b>Me : </b>
-                    <p>Lagi makan, kamu ?</p>
-                </div>
-                <div class='chat_left'>
-                    <b>Setiawan : </b>
-                    <p>Eh sama wkwkkwkw</p>
-                </div>
-                <div class='chat_right'>
-                    <b>Me : </b>
-                    <p>wkkwkw kok bisa ya.</p>
-                </div>
+                    <p class='chat_message'>Halo juga wan</p>
+                    <p class='chat_datetime'>12/12/2020 20:20:00</p>
+                </div> -->
             </div>
             <form id="form">
                 <input type="text" id="msg" style="width: 92%;" autofocus />
-                <input type="submit" value="Send" />
+                <input type="submit" id="send_chat_button" value="Send" />
             </form>
         </div>
 
@@ -269,59 +184,232 @@
 
     <script>
         $(document).ready(function () {
+            //variabel untuk koneksi ke ws
+            let conn;
+
+            //hide popup send new message
             $(".bg_popup").hide();
+
+            //beri event on click untuk membuka popup send new message
             $("#send_new_message_button").click(function () {
                 $(".bg_popup").show();
             })
+
+            //beri event on click untuk close popup send new message
             $("#close_popup").click(function () {
                 $(".bg_popup").hide();
             })
-            let conn;
-            let msg = document.getElementById("msg");
-            let log = document.getElementById("log");
+            
+            //variabel untuk menyimpan informasi akun yg didapat dari localstorage
+            var access = JSON.parse(localStorage.getItem("access"));
 
-            function appendLog(item) {
-                let doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-                log.appendChild(item);
-                if (doScroll) {
-                    log.scrollTop = log.scrollHeight - log.clientHeight;
-                }
+            //isi my name dan my phone dibagian pojok kiri atas
+            $("#my_name").html(access["name"])
+            $("#my_phone").html(access["phone"])
+
+            //fungsi untuk ngescroll chat log sampe ke bawah
+            function scrollChatToBottom() {
+                $('#log').scrollTop($('#log').prop("scrollHeight"));
             }
 
-            document.getElementById("form").onsubmit = function () {
-                if (!conn) {
-                    return false;
+            //fungsi untuk menambahkan pesan chat ke chat log
+            function appendMessage(isRight, from, message) {
+                if (isRight) { //jika kita yang ngechat
+                    $("#log").append("<div class='chat_right'><b>" + from +" : </b><p>" + message + "</p></div>");
+                } else { //jika orang lain yang ngechat
+                    $("#log").append("<div class='chat_left'><b>" + from + " : </b><p>" + message + "</p></div>");
                 }
-                if (!msg.value) {
-                    return false;
-                }
-                conn.send(msg.value);
-                msg.value = "";
-                return false;
-            };
+                scrollChatToBottom();
+            }
+            
+            //fungsi untuk menambahkan keterangan ke chat log (misal connection closed)
+            function appendLog(message) {
+                $("#log").append("<center><div><b>" + message + "</b></div></center>");
+            }
 
+            //fungsi untuk memberi notifikasi pada kontak tertentu bahwa ada pesan masuk 
+            function notifyNewMessage(contact_user_id, withChangeColor = true) {
+                var contactElement = $(".person[user_id='" + contact_user_id + "']");
+
+                //jika kontak tersebut belum terdaftar di list bagian kiri, maka
+                if(!contactElement.length) {
+                    getContact();
+                    $("#log").empty();
+                }
+
+                //beri warna biru sebagai tanda
+                if(withChangeColor)
+                    contactElement.css("background-color", "#bfdfff");
+            }
+
+            // fungsi untuk get semua contact
+            function getContact() {
+                $.ajax({
+                    type: "GET",
+                    url: "api/contact",
+                    contentType: "application/json; charset=utf-8",
+                    headers: {
+                        "Authorization": "Bearer " + access['token']
+                    },
+                    dataType: "json",
+                    success: function (data, textStatus) {
+                        if(data == null) {
+                            return null;
+                        } 
+                        $("#contacts").empty();
+                        for (i = 0; i < data.length; i++) {
+                            //yang di return dari API itu selalu ada 2 user. Misal user kita adalah A, dan user teman kita adalah B,C,D.
+                            //nanti yang direturn dari API kira-kira seperti ini : [{A,B},{C,A},{D,A}]
+                            //kita harus cari nama teman kita dulu
+                            var tempFriend;
+                            if(data[i]['users_info'][0]['_id'] == access['user_id']) {
+                                //jika data pertama adalah data diri kita sendiri, maka data teman kita pasti ada di data kedua
+                                tempFriend = data[i]['users_info'][1];
+                            } else {
+                                //kalau data pertama bukan data diri kita sendiri, berarti ya itu data teman kita
+                                tempFriend = data[i]['users_info'][0];
+                            }
+                            var name = tempFriend['name'];
+                            var room_id = data[i]['_id'];
+                            var user_id = tempFriend['_id'];
+                            $("#contacts").append("<div class='person' room_id='" + room_id + "' user_id='" + user_id +"'><h3>" + name + "</h3></div>");
+                        }
+                    },
+                    error: function (data, textStatus) {
+                        alert("Error when get contact");
+                    }
+                });
+            }
+            
+            getContact();
+
+
+            //di setiap contact, dikasi event on click untuk melihat isi chat
+            $('body').on("click", ".person", function () {
+                var thisElement = $(this);
+                var roomId = $(this).attr("room_id");
+                var toUserId = $(this).attr("user_id");
+                var toUserName = $(this).text();
+                $("#send_chat_button").attr("to_user_id",toUserId)
+                $("#send_chat_button").attr("to_user_name",toUserName)
+                $("#send_chat_button").attr("room_id",roomId)
+                thisElement.css('background-color', '');
+                $.ajax({
+                    type: "GET",
+                    url: "api/chat/" + roomId,
+                    contentType: "application/json; charset=utf-8",
+                    headers: {
+                        "Authorization": "Bearer " + access['token']
+                    },
+                    dataType: "json",
+                    success: function (data, textStatus) {
+                        $("#log").empty();
+                        for (i = 0; i < data['chat_history'].length; i++) {
+                            var temp = data['chat_history'][i];
+                            if (temp['user_id'] == access['user_id']) {
+                                appendMessage(true,"Me",temp['message']);
+                            } else {
+                                appendMessage(false,thisElement.text(),temp['message']);
+                            }
+                        }
+                    },
+                    error: function (data, textStatus) {
+                        alert("Error when get history chat");
+                    }
+                });
+            });
+
+
+            //event pada saat kita klik send di popup send new message
+            $('body').on("click", "#send_message_now_button", function () {
+                //input_new_phone_number
+                //input_new_message
+                var phone = $("#input_new_phone_number").val();
+                var message = $("#input_new_message").val();
+                var body = {
+                    "phone" : phone,
+                    "message" : message
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "api/new_chat",
+                    data: JSON.stringify(body),
+                    contentType: "application/json; charset=utf-8",
+                    headers: {
+                        "Authorization": "Bearer " + access['token']
+                    },
+                    dataType: "json",
+                    success: function (data, textStatus) {
+                        $(".bg_popup").hide();
+                    },
+                    error: function(data, textStatus) {
+                        alert("failed to send new message");
+                    }
+                });
+
+            });
+
+
+
+            //connect to websocket 
             if (window["WebSocket"]) {
-                const params = window.location.href.split("/");
-                const roomId = params[params.length - 1];
-                conn = new WebSocket("ws://" + document.location.host + "/ws/" + roomId);
+                const userId = access['user_id'];
+                conn = new WebSocket("ws://" + document.location.host + "/ws/" + userId);
                 conn.onclose = function (evt) {
-                    let item = document.createElement("div");
-                    item.innerHTML = "<b>Connection closed.</b>";
-                    appendLog(item);
+                    appendLog("Connection closed.");
                 };
                 conn.onmessage = function (evt) {
                     let messages = evt.data.split('\n');
                     for (let i = 0; i < messages.length; i++) {
-                        let item = document.createElement("div");
-                        item.innerText = messages[i];
-                        appendLog(item);
+                        var plainMessage = messages[i];
+                        var formattedMessage = JSON.parse(plainMessage);
+                        //jika message ws ini memberitahu kita bahwa pesan kita sudah masuk, maka
+                        if(formattedMessage['fromUserId'] == access['user_id']) {
+                            //jika kita lagi buka chat log
+                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["toUserId"]) {
+                                appendMessage(true,"Me",formattedMessage['data']);
+                            } else {
+                                notifyNewMessage(formattedMessage['fromUserId'], false); //without bg change
+                            }
+                        } else { //jika ini adalah message ws dari orang lain ke kita (bukan acknowledge)
+                            //jika kita lagi buka chat log
+                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["fromUserId"]) {
+                                appendMessage(false,$("#send_chat_button").attr("to_user_name"),formattedMessage['data']);
+                            } else { //jika kita tidak lagi buka chat log
+                                notifyNewMessage(formattedMessage['fromUserId']);
+                            }
+                        }
+
+                        
                     }
                 };
             } else {
-                let item = document.createElement("div");
-                item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-                appendLog(item);
+                appendLog("Your browser does not support WebSockets.");
             }
+
+            //event pada saat user kirim pesan di chat log
+            $('#form').on('submit', function (e) {
+                if (!conn) {
+                    return false;
+                }
+                
+                // format : {"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
+                var value = $("#msg").val();
+                if(value == null) {
+                    return false;
+                }
+
+                var sendData = {
+                    "data": value,
+                    "fromUserId" : access['user_id'],
+                    "toUserId" : $("#send_chat_button").attr("to_user_id"),
+                    "roomId" : $("#send_chat_button").attr("room_id")
+                };
+                conn.send(JSON.stringify(sendData));
+                $("#msg").val("");
+                return false;
+            });
+
         });
     </script>
 </body>
