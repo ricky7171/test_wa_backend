@@ -1,7 +1,7 @@
 <html lang="en">
 
 <head>
-    <title>Login</title>
+    <title>Register</title>
     <style>
         body {
             display: table;
@@ -57,21 +57,20 @@
     $("#submitRegister").click(function () {
         var body = {
             "name": $("#inputName").val(),
-            "phonenumber": $("#inputPhone").val(),
+            "phone": $("#inputPhone").val(),
             "password": $("#inputPassword").val(),
         };
         $.ajax({
             type: "POST",
             url: "api/auth/register",
-            data: body,
+            data: JSON.stringify(body),
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, textStatus) {
-                console.log(data);
-                if(data['error']) {
-                    alert("phone number already registered !");
-                } else {
-                    $(location).attr('href', '/home');
-                }
+                $(location).attr('href', '/login');
+            },
+            error: function(data, textStatus) {
+                alert("Failed register !");
             }
         });
         
