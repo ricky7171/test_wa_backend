@@ -1,11 +1,13 @@
-package main
+package hub
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
 	"time"
+	"wa/models"
 
 	"github.com/gorilla/websocket"
 )
@@ -46,7 +48,7 @@ type connection struct {
 func (s subscription) readPump() {
 	c := s.conn
 	defer func() {
-		h.unregister <- s
+		MainHub.Unregister <- s
 		c.ws.Close()
 	}()
 	c.ws.SetReadLimit(maxMessageSize)
@@ -58,22 +60,12 @@ func (s subscription) readPump() {
 		for {
 			_, msg, err := c.ws.ReadMessage() //nungguin message masuk dari websocket
 			if err != nil {
-
 				c.write(websocket.CloseMessage, []byte{})
-				log.Printf("ada error nih waktu nge read message dari ws")
 				log.Printf("error: %v", err)
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					log.Printf("error waktu nge read : unexpectedcloseerror")
-					log.Printf("error: %v", err)
-				} else {
-					log.Printf("ada error nih waktu nge read message dari ws")
-					log.Printf("error: %v", err)
-				}
 				break
 			}
 
 			//convert plain message data to formated message struct
-
 			//example messageMap :
 			//{"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
 			var messageMap map[string]interface{}
@@ -81,19 +73,29 @@ func (s subscription) readPump() {
 				panic(err)
 			}
 
-			dataIsCorrect := false
-			if data, ok := messageMap["data"].([]byte); ok {
-				if fromUserID, ok := messageMap["fromUserId"].(int); ok {
-					if toUserID, ok := messageMap["toUserId"].(int); ok {
-						dataIsCorrect = true
-						m := message{data, fromUserID, toUserID}
-						h.broadcast <- m
-					}
-				}
-			}
-			if !dataIsCorrect {
+			//convert semua key di map messageMap. Kalau ada yg error, langsung break
+			data, ok := messageMap["data"].(string)
+			if !ok {
 				break
 			}
+			fromUserID, ok := messageMap["fromUserId"].(string)
+			if !ok {
+				break
+			}
+			toUserID, ok := messageMap["toUserId"].(string)
+			if !ok {
+				break
+			}
+			roomID, ok := messageMap["roomId"].(string)
+			if !ok {
+				break
+			}
+
+			//build model message
+			m := models.Message{Data: data, FromUserId: fromUserID, ToUserId: toUserID, Room_id: roomID}
+
+			//kirim ke channel broadcast
+			MainHub.Broadcast <- m
 
 		}
 
@@ -112,6 +114,7 @@ func (c *connection) write(mt int, payload []byte) error {
 
 // writePump pumps messages from the hub to the websocket connection.
 func (s *subscription) writePump() {
+	fmt.Println("masuk writepump")
 	c := s.conn
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -121,7 +124,6 @@ func (s *subscription) writePump() {
 	for {
 		select {
 		case messageInByte, ok := <-c.send: //jika ada pesan masuk ke dalam channel send di koneksi tertentu, maka kirim pesan tsb ke websocket
-
 			if !ok {
 				c.write(websocket.CloseMessage, []byte{}) //write ke ws, tipe write nya adalah close message, isinya adalah {}
 				return
@@ -142,7 +144,7 @@ func (s *subscription) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(w http.ResponseWriter, r *http.Request, userID int) {
+func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 
 	//1. upgrade protocol from http to websocket
 	//then, save the connection to variable ws
@@ -159,9 +161,10 @@ func serveWs(w http.ResponseWriter, r *http.Request, userID int) {
 	s := subscription{c, userID}
 
 	//4. register this subscription to hub
-	h.register <- s
+	MainHub.Register <- s
 
 	//5. run this function on background
 	go s.writePump()
 	go s.readPump()
+	fmt.Println("tidak ada masalah di serve")
 }
