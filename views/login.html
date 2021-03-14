@@ -55,21 +55,22 @@
 <script>
     $("#submitLogin").click(function () {
         var body = {
-            "phonenumber": $("#inputPhone").val(),
+            "phone": $("#inputPhone").val(),
             "password": $("#inputPassword").val(),
         };
         $.ajax({
             type: "POST",
             url: "api/auth/login",
-            data: body,
+            data: JSON.stringify(body),
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, textStatus) {
-                console.log(data);
-                if(data['error']) {
-                    alert("wrong username/password");
-                } else {
-                    $(location).attr('href', '/home');
-                }
+                dataString = JSON.stringify(data);
+                localStorage.setItem("access", dataString)
+                $(location).attr('href', '/home');
+            },
+            error: function(data, textStatus) {
+                alert("wrong phone number or password");
             }
         });
         
