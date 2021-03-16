@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"wa/database"
+	db "wa/database"
 	helper "wa/helpers"
 	"wa/hub"
 	"wa/models"
@@ -19,8 +19,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "users")
-var roomCollection *mongo.Collection = database.OpenCollection(database.Client, "rooms")
 var validate = validator.New()
 
 //HashPassword is used to encrypt the password before it is stored in the DB
@@ -34,8 +32,8 @@ func HashPassword(password string) string {
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
-//userPassword adalah plain password
-//providedPassword adalah hashed password
+//userPassword is plain password
+//providedPassword is hashed password
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
 	//compareHashAndPassword(hashed password, plain password)
 	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
@@ -50,34 +48,31 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
-//CreateUser is the api used to tget a single user
 func Register() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. buat ctx dengan timeout 100 detik
-		//dimana ctx ini bakal digunakan saat nge query
+		//1. make ctx with timeout 100 second
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 
-		//2. siapkan user model
+		//2. make user model
 		var user models.User
 
-		//3. baca JSON request dan masukan ke variabel user (model)
+		//3. read JSON request then store to "user" variable (model)
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		//4. validate user tsb (kek di laravel)
+		//4. validate user
 		validationErr := validate.Struct(user)
 		if validationErr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 			return
 		}
 
-		//5. ngecek apakah phonenya sudah ada atau belum
-		count, err := userCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
-		defer cancel() //defer cancel() gunanya untuk membersihkan memory yang ada sangkut pautnya dengan ctx
-		//nah kenapa setiap nge query harus di defer cancel(), karena saat ngequery kita mengirimkan ctx
-		//jadi kalau 1x pake ctx, ya di defer cancel() nya sekali, kalau 2x pake ctx, ya berarti 2x harus di defer cancel()
+		//5. check wether phone is already in the database or not
+		count, err := db.UserCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
+		defer cancel() //defer cancel() used to clean go routine memory after this function is done
 		if err != nil {
 			log.Panic(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
@@ -88,24 +83,24 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		//6. hash passwordnya
+		//6. hash user password
 		password := HashPassword(*user.Password)
 		user.Password = &password
 
-		//7. mengisi attribute : created_at, updated_at, id, token, dan refresh_token
+		//7. fill attribute : created_at, updated_at, id, token, and refresh_token
 		user.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
 		user.User_id = user.ID.Hex()
 
 		//8. generate token.
-		//generate token dari name, phone, dan user id
+		//generate JWT token from name, phone, and user id
 		token, refreshToken, _ := helper.GenerateAllTokens(*user.Name, *user.Phone, *&user.User_id)
 		user.Token = &token
 		user.Refresh_token = &refreshToken
 
-		//9. insert ke database
-		resultInsertionNumber, insertErr := userCollection.InsertOne(ctx, user)
+		//9. insert user to database
+		resultInsertionNumber, insertErr := db.UserCollection.InsertOne(ctx, user)
 		defer cancel()
 		if insertErr != nil {
 			msg := fmt.Sprintf("User item was not created")
@@ -113,43 +108,43 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		//10. kirim response
+		//10. send response to client
 		c.JSON(http.StatusOK, resultInsertionNumber)
 
 	}
 }
 
-//Login is the api used to tget a single user
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. buat ctx dengan timeout 100 detik
-		//dimana ctx ini bakal digunakan saat nge query
+		//1. make ctx with timeout 100 second
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 
-		//2. siapkan user model untuk variabel user dan foundUser
-		//dimana user untuk request dan foundUser untuk hasil query
+		//2. make user model for "user" variable and "foundUser" variable
+		//"user" variable used to store request
+		//"founduser" variable used to store query result
 		var user models.User
 		var foundUser models.User
 
-		//3. baca JSON request dan masukan ke variabel user (model)
+		//3. read request and store to "user" variable
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		//4. cari data user dengan phone sesuai dengan phone request
-		//lalu setelah ketemu kan bentuknya masih JSON. trus di decode ke variabel foundUser
-		err := userCollection.FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
+		//4. search user that have client request phone number, then save that user to "founduser" variable
+		err := db.UserCollection.FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "login or passowrd is incorrect"})
 			return
 		}
 
-		//5. cek password dari phone itu sudah sesuai dengan password yang dikirim oleh user atau belum
-		//*user.Passowrd itu adalah password plain
-		//*foundUser.Password itu adalah hashed password
-		//kalau salah, langsung balikin error : login or passowrd is incorrect
+		//5. check userfound password with client request password
+		//*user.Password is password plain
+		//*foundUser.Password is hashed password
+		//if wrong, return error : login or passowrd is incorrect
+		//this process will take long time (about 1 second), because bcrypt is complex
 		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
 		defer cancel()
 		if passwordIsValid != true {
@@ -158,16 +153,16 @@ func Login() gin.HandlerFunc {
 		}
 
 		//6. generate token.
-		//generate token dari name, phone, dan user id
+		//generate token from name, phone, and user id
 		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Name, *foundUser.Phone, *&foundUser.User_id)
 
-		//7. update user tersebut dengan token, refresToken yang baru
+		//7. update user with new token and new refresToken
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
 
-		//8. hapus attribute password
+		//8. remove password attribute, because it will send to client
 		foundUser.Password = nil
 
-		//9. kirim response
+		//9. send response to client
 		c.JSON(http.StatusOK, foundUser)
 
 	}
@@ -176,43 +171,90 @@ func Login() gin.HandlerFunc {
 //get all chat with specific room
 func GetChat() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. get param room_id
+		//1. get param room_id & last_id
 		roomID := c.Param("room_id")
+		roomObjectID, err := primitive.ObjectIDFromHex(roomID)
+		lastID := c.Param("last_id")
+		var lastObjectID primitive.ObjectID
+		if lastID != "" {
+			lastObjectID, err = primitive.ObjectIDFromHex(lastID)
+		}
 
-		//2. buat context
+		//2. make context
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 
-		//3. siapkan model room
-		var room models.Room
+		//3. get data room with all chat in that room
+		matchRoomIDPipeline := bson.D{{"$match", bson.D{{"_id", roomObjectID}}}}
+		unwindPipeline := bson.D{{"$unwind", "$chat_history"}}
+		sortPipeline := bson.D{{"$sort", bson.D{{"chat_history._id", -1}}}}
+		paginatePipeline := bson.D{{"$match", bson.D{{"chat_history._id", bson.D{{"$lt", lastObjectID}}}}}}
+		limitPipeline := bson.D{{"$limit", 20}}
+		groupPipeline := bson.D{{"$group", bson.D{{"_id", "$_id"}, {"chat_history", bson.M{"$push": "$chat_history"}}}}}
 
-		//4. nge get data chat dari room tersebut
-		err := roomCollection.FindOne(ctx, bson.M{"room_id": roomID}).Decode(&room)
+		var cursor *mongo.Cursor
+
+		if lastID == "nil" { //means this client request first page
+
+			cursor, err = db.RoomCollection.Aggregate(
+				ctx,
+				mongo.Pipeline{
+					matchRoomIDPipeline,
+					unwindPipeline,
+					sortPipeline,
+					limitPipeline,
+					groupPipeline,
+				},
+			)
+		} else { //means this client request not the first page
+
+			cursor, err = db.RoomCollection.Aggregate(
+				ctx,
+				mongo.Pipeline{
+					matchRoomIDPipeline,
+					unwindPipeline,
+					sortPipeline,
+					paginatePipeline,
+					limitPipeline,
+					groupPipeline,
+				},
+			)
+		}
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, room)
+		var result []bson.M
+		if err = cursor.All(ctx, &result); err != nil {
+			log.Fatal(err)
+		}
+
+		//5. send response to client
+		c.JSON(http.StatusOK, result)
 
 	}
 }
 
 //get contact
+//contact is peoples who have interacted before with specific user id
 func GetContact() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. get param user_id
+
+		//1. get param user_id and make objectID from that
 		userID := c.GetString("user_id")
 		userObjetID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error convert from string to objectID"})
 		}
 
-		//2. buat context
+		//2. make context
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 
-		//3. nge get data chat dari room tersebut
-		cursor, err := roomCollection.Aggregate(
+		//3. get all data chat WHERE it contains userId
+		cursor, err := db.RoomCollection.Aggregate(
 			ctx,
 			mongo.Pipeline{
 				bson.D{
@@ -246,67 +288,65 @@ func GetContact() gin.HandlerFunc {
 		)
 		defer cancel()
 
-		fmt.Println(cursor)
-
+		//4. store all result in allContacts
 		var allContacts []bson.M
 		if err = cursor.All(ctx, &allContacts); err != nil {
 			log.Fatal(err)
 		}
+
+		//5. send response to client
 		c.JSON(http.StatusOK, allContacts)
 
 	}
 }
 
-//new message
+//send new message to other user
 func NewMessage() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. buat ctx dengan timeout 100 detik
-		//dimana ctx ini bakal digunakan saat nge query
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
-		//2. siapkan new chat model
-		//dimana new chat ini akan menampung request dari user
+		//1. make ctx with timeout 100 second
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		//2. make chat model that store client request
 		var newChat models.NewChat
 
-		//3. baca JSON request dan masukan ke variabel newChat (model)
+		//3. read request from client and store to "newChat" variable
 		if err := c.BindJSON(&newChat); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		//4. membuat object model message
+		//4. make object model message
 		m := models.Message{Data: newChat.Message, FromUserId: c.GetString("user_id")}
 
-		//saat user mengirimkan room_id ke API ini, maka ya tidak usah
-		//melakukan query untuk mendapatkan informasi penerima pesan ini
-
-		//5. tapi kalau ternyata user tidak mengirimmkan room_id tapi ngirim phone, berarti kita harus cari informasi penerimanya lewat phone. Informasi tsb digunakan untuk nge get room idnya.
+		//5. if client doesn't send room_id and send phone number, then it need to search wether client have interacted with this phone number before or not
 		if newChat.Room_id == "" && newChat.Phone != "" {
-			//5.a. siapkan model user
+			//5.1. make user model
 			var user models.User
 
-			//5.b. nge get data user sesuai phone penerima yang dikirim
-			err := userCollection.FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&user)
+			//5.b. get user data according that phone number
+			err := db.UserCollection.FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&user)
 			defer cancel()
 
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			//5.c. tambahkan id penerima ke object message
+			//5.c. add user_id to message object
 			m.ToUserId = user.User_id
-		} else if newChat.Room_id != "" { //jika user mengirimkan room_id
-			//5.a. tambahkan id room ke object message
+		} else if newChat.Room_id != "" { //if client send room_id
+			//5.a. add rooom_id to message object
 			m.Room_id = newChat.Room_id
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "room id and phone not found"})
 			return
 		}
 
-		//6. kirimkan object message ke channel boradcast
+		//6. send message object to broadcast channel
 		hub.MainHub.Broadcast <- m
 
-		//7. kirim response
+		//7. send response to client
 		c.JSON(http.StatusOK, map[string]bool{
 			"success": true,
 		})
