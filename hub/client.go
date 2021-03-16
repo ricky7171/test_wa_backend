@@ -2,7 +2,6 @@ package hub
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -61,7 +60,7 @@ func (s subscription) readPump() {
 			_, msg, err := c.ws.ReadMessage() //nungguin message masuk dari websocket
 			if err != nil {
 				c.write(websocket.CloseMessage, []byte{})
-				log.Printf("error: %v", err)
+				log.Printf("[close] %v", err)
 				break
 			}
 
@@ -70,7 +69,8 @@ func (s subscription) readPump() {
 			//{"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
 			var messageMap map[string]interface{}
 			if err := json.Unmarshal(msg, &messageMap); err != nil {
-				panic(err)
+				log.Printf("Cannot unmarshall message : %s", msg)
+				break
 			}
 
 			//convert semua key di map messageMap. Kalau ada yg error, langsung break
@@ -114,7 +114,6 @@ func (c *connection) write(mt int, payload []byte) error {
 
 // writePump pumps messages from the hub to the websocket connection.
 func (s *subscription) writePump() {
-	fmt.Println("masuk writepump")
 	c := s.conn
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -145,7 +144,6 @@ func (s *subscription) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
-
 	//1. upgrade protocol from http to websocket
 	//then, save the connection to variable ws
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -166,5 +164,4 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 	//5. run this function on background
 	go s.writePump()
 	go s.readPump()
-	fmt.Println("tidak ada masalah di serve")
 }
