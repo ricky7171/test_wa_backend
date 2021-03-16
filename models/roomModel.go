@@ -13,7 +13,6 @@ type Room struct {
 	Users        []primitive.ObjectID `json:"users"`
 	Created_at   time.Time            `json:"created_at"`
 	Updated_at   time.Time            `json:"updated_at"`
-	Room_id      string               `json:"room_id"`
 }
 
 type ChatHistory struct {
