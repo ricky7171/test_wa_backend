@@ -1,0 +1,214 @@
+{
+	"info": {
+		"_postman_id": "6fa1069f-67f4-4f79-a0b5-053c212b7ed4",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\" : \"085727322755\",\r\n    \"password\" : \"welcome3\"\r\n}"
+						},
+						"url": {
+							"raw": "localhost:8080/api/auth/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\" : \"085727322759\",\r\n    \"name\" : \"daniel ricky saputro\",\r\n    \"password\" : \"welcome3\"\r\n}"
+						},
+						"url": {
+							"raw": "localhost:8080/api/auth/register",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "getchat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGI3MDRjODM2ODg2YjhlN2Q5MzZhNiIsImV4cCI6MTYxNTY0MzA4OX0.H4hRokceMRB3Tirg3TvW4ELBR3b3lxneTbbILFvyM_c",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/chat/604c25fc992ccf2af4b1b525",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"chat",
+								"604c25fc992ccf2af4b1b525"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getcontact",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/contact",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contact"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "newchat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"phone\": \"08000000000\", \"message\": \"Yoga ?\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/new_chat",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"new_chat"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
