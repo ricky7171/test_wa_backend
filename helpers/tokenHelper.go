@@ -93,6 +93,7 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 func UpdateAllTokens(signedToken string, signedRefreshToken string, userId string) {
 	//1. buat context dengan timeout 100 detik
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 
 	//2. buat object BSON
 	var updateObj primitive.D
