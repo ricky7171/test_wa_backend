@@ -2,6 +2,7 @@ package main
 
 import (
 	"wa/hub"
+	"wa/middleware"
 	routes "wa/routes"
 
 	"github.com/gin-gonic/gin"
@@ -35,12 +36,17 @@ func main() {
 	//front-end router
 	routes.ViewRoutes(router)
 
-	//websocket router
-	routes.WebSocketRouter(router)
+	//authorized router
+	authorized := router.Group("/")
+	authorized.Use(middleware.Authentication())
+	{
+		//- chat router
+		routes.ChatRoutes(authorized)
+	}
 
-	//REST API router
+	//unauthorized router
+	//- auth router
 	routes.AuthRoutes(router)
-	routes.ChatRoutes(router)
 
 	//run server on port 8080
 	router.Run("0.0.0.0:8080")

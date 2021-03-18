@@ -449,7 +449,7 @@
             //connect to websocket 
             if (window["WebSocket"]) {
                 const userId = access['user_id'];
-                conn = new WebSocket("ws://" + document.location.host + "/ws/" + userId);
+                conn = new WebSocket("ws://" + document.location.host + "/ws/" + userId + "?access_token=" + access['token']);
                 conn.onclose = function (evt) {
                     appendLog("Connection closed.");
                 };

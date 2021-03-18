@@ -36,6 +36,7 @@ func HashPassword(password string) string {
 //providedPassword is hashed password
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
 	//compareHashAndPassword(hashed password, plain password)
+
 	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
 	check := true
 	msg := ""
@@ -168,6 +169,13 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+func ConnectWs() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID := c.Param("user_id")
+		hub.ServeWs(c.Writer, c.Request, userID)
+	}
+}
+
 //get all chat with specific room
 func GetChat() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -206,7 +214,7 @@ func GetChat() gin.HandlerFunc {
 					groupPipeline,
 				},
 			)
-		} else { //means this client request not the first page
+		} else { //means this client request NOT the first page
 
 			cursor, err = db.RoomCollection.Aggregate(
 				ctx,

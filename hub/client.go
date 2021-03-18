@@ -151,7 +151,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 		log.Println(err.Error())
 		return
 	}
-
 	//2. just make connection instance and save to variable c
 	c := &connection{send: make(chan []byte, 256), ws: ws}
 
@@ -160,7 +159,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 
 	//4. register this subscription to hub
 	MainHub.Register <- s
-
 	//5. run this function on background
 	go s.writePump()
 	go s.readPump()

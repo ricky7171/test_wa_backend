@@ -13,8 +13,18 @@ import (
 // Authz validates token and authorizes users
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. ambil token dari requestnya user. Diambil dari headernya
-		plainToken := c.Request.Header.Get("Authorization")
+		var plainToken string
+		//1. get token from header Authorization (for restful API)
+		//or from header Sec-WebSocket-Protocl (for ws connection)
+		if c.Request.Header.Get("Authorization") != "" {
+			plainToken = c.Request.Header.Get("Authorization")
+		} else if c.Query("access_token") != "" {
+			plainToken = "Bearer " + c.Query("access_token")
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not authorized !"})
+			c.Abort()
+			return
+		}
 
 		//2. cek, kalau tokennya kosong, berarti return "no authorization header provided"
 		if plainToken == "" {
