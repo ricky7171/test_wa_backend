@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,19 +18,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var validate = validator.New()
 
 //HashPassword is used to encrypt the password before it is stored in the DB
 func HashPassword(password string) string {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		log.Panic(err)
+	data := []byte(password)
+	bytes := md5.Sum(data)
+	if len(bytes) == 0 {
+		log.Panic("cannot hash password")
 	}
 
-	return string(bytes)
+	return string(hex.EncodeToString(bytes[:]))
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
@@ -36,14 +38,15 @@ func HashPassword(password string) string {
 //providedPassword is hashed password
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
 	//compareHashAndPassword(hashed password, plain password)
-
-	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
-	check := true
-	msg := ""
-
-	if err != nil {
-		msg = fmt.Sprintf("login or passowrd is incorrect")
+	var check bool
+	var msg string
+	encryptedUserPassword := HashPassword(userPassword)
+	if encryptedUserPassword == providedPassword {
+		check = true
+		msg = ""
+	} else {
 		check = false
+		msg = fmt.Sprintf("login or passowrd is incorrect")
 	}
 
 	return check, msg
