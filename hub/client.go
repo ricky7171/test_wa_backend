@@ -56,7 +56,7 @@ func (s subscription) readPump() {
 	} else {
 		c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 		for {
-			_, msg, err := c.ws.ReadMessage() //nungguin message masuk dari websocket
+			_, msg, err := c.ws.ReadMessage() //waiting message from websocket
 			if err != nil {
 				c.write(websocket.CloseMessage, []byte{})
 				log.Printf("[close] %v", err)
@@ -72,7 +72,7 @@ func (s subscription) readPump() {
 				break
 			}
 
-			//convert semua key di map messageMap. Kalau ada yg error, langsung break
+			//conver tall key in messageMap
 			data, ok := messageMap["data"].(string)
 			if !ok {
 				break
@@ -93,7 +93,7 @@ func (s subscription) readPump() {
 			//build model message
 			m := models.Message{Data: data, FromUserId: fromUserID, ToUserId: toUserID, Contact_id: contactID}
 
-			//kirim ke channel broadcast
+			//send to broadcast channel
 			MainHub.Broadcast <- m
 
 		}
@@ -103,7 +103,7 @@ func (s subscription) readPump() {
 }
 
 // write writes a message with the given message type and payload.
-//mt itu messageType
+//mt is messageType
 func (c *connection) write(mt int, payload []byte) error {
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 	c.mu.Lock()
@@ -121,17 +121,17 @@ func (s *subscription) writePump() {
 	}()
 	for {
 		select {
-		case messageInByte, ok := <-c.send: //jika ada pesan masuk ke dalam channel send di koneksi tertentu, maka kirim pesan tsb ke websocket
+		case messageInByte, ok := <-c.send: //if there is message goes to channel send in certain connection, then send that message to websocket
 			if !ok {
-				c.write(websocket.CloseMessage, []byte{}) //write ke ws, tipe write nya adalah close message, isinya adalah {}
+				c.write(websocket.CloseMessage, []byte{}) //write to ws indicate that connection was closed
 				return
 			}
-			err := c.write(websocket.TextMessage, messageInByte)
-			if err != nil { //coba write ke ws, tipenya adalah textmessage, isinya adalah variabel message, kalau tidak error maka
+			err := c.write(websocket.TextMessage, messageInByte) //write to ws with message : messageInByte
+			if err != nil {
 				return
 			}
 
-		case <-ticker.C: //keknya, kalau roomnya timeout maka
+		case <-ticker.C:
 			err := c.write(websocket.PingMessage, []byte{})
 			if err != nil {
 				return
