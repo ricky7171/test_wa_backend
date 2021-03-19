@@ -127,9 +127,9 @@ Hi sir, here I will show my app chat project.
 
 5. Now, open MongoDB terminal
 
-> 5.a. Open terminal (Because I use windows, I open command prompt) <br>
-> 5.b. Go to mongo directory (my mongo dir is : "C:\Program Files\MongoDB\Server\4.4\bin" <br>
-> 5.c. Then type "mongo"
+&nbsp; &nbsp; &nbsp; &nbsp; 5.a. Open terminal (Because I use windows, I open command prompt) <br>
+&nbsp; &nbsp; &nbsp; &nbsp; 5.b. Go to mongo directory (my mongo dir is : "C:\Program Files\MongoDB\Server\4.4\bin" <br>
+&nbsp; &nbsp; &nbsp; &nbsp; 5.c. Then type "mongo"
 
 ![alt text](https://github.com/ricky7171/test_wa_backend/blob/master/requirement/screenshot/open%20mongo.png?raw=true)
 
@@ -177,22 +177,28 @@ note : postman is only used to run restful API (because until now postman still 
 ## Performance Optimization
 
 I have do some optimization for server & database performance :
-
->1. Create a fast performing database structure in MongoDB <br>
- >I've tried several possible database structures, and the last structure I tried was fast enough. I use 3 collection : users, contacts, and chats. It faster than I just use 2 collection : users, contacts (Chat data is in the contacts collection as array)  
-
->2. Add indexes in certain collections as needed <br>
-> I have added indexes to 3 collections in certain fields so that the reading process is faster.
-
->3. Using go routine so that the websocket process can run simultaneously (listening from the client and sending data to the client) <br>
-> I use go 2 routine to listen and write data to client. I also use channel as a "bridge" for websocket data communications, like example when user connect to websocket, send message, retreive message.
-
-
-> 4. Using mutex to prevent deadlock <br>
+<ol>
+  <li>
+Create a fast performing database structure in MongoDB <br>
+ I've tried several possible database structures, and the last structure I tried was fast enough. I use 3 collection : users, contacts, and chats. It faster than I just use 2 collection : users, contacts (Chat data is in the contacts collection as array)  
+  </li>
+  <li>
+Add indexes in certain collections as needed <br>
+ I have added indexes to 3 collections in certain fields so that the reading process is faster.
+  </li>
+  <li>
+Using go routine so that the websocket process can run simultaneously (listening from the client and sending data to the client) <br>
+ I use go 2 routine to listen and write data to client. I also use channel as a "bridge" for websocket data communications, like example when user connect to websocket, send message, retreive message.
+  </li>
+  <li>
+Using mutex to prevent deadlock <br>
 I use mutex when process writing to websocket, because it can prevent deadlock.
-
->5. Make queries as efficient as possible <br>
+  </li>
+  <li>
+Make queries as efficient as possible <br>
 I test every query on mongo terminal and measure that time execution (using profile mode and explain() function). I also try to make 100.000 user with 5.000 contact for each user and 10.000 chat for 300 first contact. I try all query that needed in backend, and it still fine (after I adding index). I also follow some suggestion about optimization query from mongo documentation (ex : https://docs.mongodb.com/manual/reference/operator/aggregation/match/#pipeline-optimization)
+  </li>
+</ol>
 
   
   
