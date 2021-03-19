@@ -65,11 +65,11 @@ Hi sir, here I will show my app chat project.
 
 - Register, Login, & Logout
 
-- Add other user to contacts
+- Add other user to their contacts
 
 - Realtime chat with other user
 
-- History chat
+- See chat history
 
   
 
@@ -79,7 +79,7 @@ Hi sir, here I will show my app chat project.
 
 - JWT Auth for authentication using token (github.com/dgrijalva/jwt-go)
 
-- validator for validate request (github.com/go-playground/validator/v10)
+- Validator for validate request (github.com/go-playground/validator/v10)
 
 - Gorilla Websocket for communicate using websocket (github.com/gorilla/websocket)
 
@@ -121,7 +121,7 @@ Hi sir, here I will show my app chat project.
 
 2. Clone this repository to your PC
 
-3. Go to project directory and open setup_database.js
+3. Go to project directory and open setup_database.js file
 
 4. Copy all script in that file
 
@@ -135,16 +135,18 @@ Hi sir, here I will show my app chat project.
 
 6. Run all script to that mongo terminal (just paste it)
 
+![alt text](https://github.com/ricky7171/test_wa_backend/blob/master/requirement/screenshot/run%20setup.png?raw=true)
+
 7. Wait until done.
 
-8. Open terminal again and go to project directory
+8. Open new terminal and go to project directory
 
 9. Run the following command :
 
 >go build <br>
 >go run .
 
-10. Open 2 different browser and go to localhost:8080/register
+10. Open 2 different browser and go to localhost:8080/register to test it
 
 11. Register with name, phone, and password
 
