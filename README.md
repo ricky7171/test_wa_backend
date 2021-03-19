@@ -9,43 +9,43 @@ Hi sir, here I will show my app chat project.
 ## List API
 1. Login API 
 
-url : localhost:8080/api/auth/login (POST)
+- url : localhost:8080/api/auth/login (POST)
 
-body : {"phone" : "...","password" : "..."}
+- body : {"phone" : "...","password" : "..."}
 
 2. Register API
 
-url : localhost:8080/api/auth/register (POST)
+- url : localhost:8080/api/auth/register (POST)
 
-body : {"phone" : "...","name" : "...","password" : "..."}
+- body : {"phone" : "...","name" : "...","password" : "..."}
 
 3. Get Contact API
  
-url : localhost:8080/api/contact (GET)
+- url : localhost:8080/api/contact (GET)
 
-header : {Authorization : "Bearer ..."}
+- header : {Authorization : "Bearer ..."}
 
 4. Get Chat
  
-url : localhost:8080/api/chat/:contactId/:lastId (GET)
+- url : localhost:8080/api/chat/:contactId/:lastId (GET)
 
-header : {Authorization : "Bearer ..."}
+- header : {Authorization : "Bearer ..."}
 
-note : This API use pagination. When load first page, set lastId to "nil". For another page, set lastId according to last id chat that get before.
+- note : This API use pagination. When load first page, set lastId to "nil". For another page, set lastId according to last id chat that get before.
 
 5. New Chat
 
-url : localhost:8080/api/new_chat (POST)
+- url : localhost:8080/api/new_chat (POST)
 
-header : {Authorization : "Bearer ..."}
+- header : {Authorization : "Bearer ..."}
 
-body : {"phone": "...", "message": "..."}
+- body : {"phone": "...", "message": "..."}
 
-7. Websocket
+6. Websocket
 
-url : localhost:8080/ws/:user_id 
+- url : localhost:8080/ws/:user_id 
 
-header : {Authorization : “Bearer …”}
+- header : {Authorization : “Bearer …”}
 
 
 ## Features
@@ -108,7 +108,7 @@ note : postman is only used to run restful API (because until now postman still 
 I have do some optimization for server & database performance :
 1. Create a fast performing database structure in MongoDB
 
-I've tried several possible database structures, and the last structure I tried was fast enough. I use 3 collection : users, contacts, and chats. It faster than I just use 2 collection : users, contacts (Chat data is in the contacts collection as array)
+  I've tried several possible database structures, and the last structure I tried was fast enough. I use 3 collection : users, contacts, and chats. It faster than I just use 2 collection : users, contacts (Chat data is in the contacts collection as array)
 
 2. Add indexes in certain collections as needed
 
