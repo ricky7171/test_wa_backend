@@ -1,5 +1,5 @@
 //1. use database
-use waku1;
+use waku;
 
 //2. create users collection
 db.createCollection("users");
