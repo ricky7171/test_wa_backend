@@ -17,7 +17,4 @@ func ViewRoutes(incomingRoutes *gin.Engine) {
 		c.HTML(200, "home.html", nil)
 	})
 
-	incomingRoutes.GET("/room/:roomId", func(c *gin.Context) {
-		c.HTML(200, "index.html", nil)
-	})
 }
