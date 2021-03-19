@@ -12,11 +12,11 @@ type Message struct {
 	FromUserId string    `json:"fromUserId"`
 	ToUserId   string    `json:"toUserId"`
 	Created_at time.Time `json:",omitempty"`
-	Room_id    string    `json:"room_id"`
+	Contact_id string    `json:"contact_id"`
 }
 
 type NewChat struct {
-	Phone   string `json:"phone" validate:"min=2,max=100"`
-	Message string `json:"message" validate:"required,min=2,max=100"`
-	Room_id string `json:"room_id" validate:"min=2,max=100"`
+	Phone      string `json:"phone" validate:"min=2,max=100"`
+	Message    string `json:"message" validate:"required,min=2,max=100"`
+	Contact_id string `json:"contact_id" validate:"min=2,max=100"`
 }

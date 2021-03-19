@@ -20,7 +20,6 @@ const (
 	pongWait = 60 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
-	// keknya sih ini timeout dalam room nya
 	// nilai pingPeriod ini adalah 54 detik
 	pingPeriod = (pongWait * 9) / 10
 
@@ -86,13 +85,13 @@ func (s subscription) readPump() {
 			if !ok {
 				break
 			}
-			roomID, ok := messageMap["roomId"].(string)
+			contactID, ok := messageMap["contactId"].(string)
 			if !ok {
 				break
 			}
 
 			//build model message
-			m := models.Message{Data: data, FromUserId: fromUserID, ToUserId: toUserID, Room_id: roomID}
+			m := models.Message{Data: data, FromUserId: fromUserID, ToUserId: toUserID, Contact_id: contactID}
 
 			//kirim ke channel broadcast
 			MainHub.Broadcast <- m
@@ -154,7 +153,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 	//2. just make connection instance and save to variable c
 	c := &connection{send: make(chan []byte, 256), ws: ws}
 
-	//3. make subscription instance (this explain that we make subscription with room : roomId and con : c)
+	//3. make subscription instance (this explain that we make subscription with user : userId and con : c)
 	s := subscription{c, userID}
 
 	//4. register this subscription to hub

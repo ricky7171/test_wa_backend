@@ -53,4 +53,5 @@ func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collecti
 }
 
 var UserCollection *mongo.Collection = OpenCollection(Client, "users")
-var RoomCollection *mongo.Collection = OpenCollection(Client, "rooms")
+var ContactCollection *mongo.Collection = OpenCollection(Client, "contacts")
+var ChatCollection *mongo.Collection = OpenCollection(Client, "chats")

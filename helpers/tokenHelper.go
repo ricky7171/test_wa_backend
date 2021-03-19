@@ -29,11 +29,11 @@ var userCollection *mongo.Collection = database.OpenCollection(database.Client, 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
 // GenerateAllTokens generates both the detailed token and refresh token
-func GenerateAllTokens(name string, phone string, uid string) (signedToken string, signedRefreshToken string, err error) {
+func GenerateAllTokens(name string, phone string, uid primitive.ObjectID) (signedToken string, signedRefreshToken string, err error) {
 	claims := &SignedDetails{
 		Name:  name,
 		Phone: phone,
-		Uid:   uid,
+		Uid:   uid.Hex(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
 		},
@@ -90,7 +90,7 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 }
 
 //UpdateAllTokens renews the user tokens when they login
-func UpdateAllTokens(signedToken string, signedRefreshToken string, userId string) {
+func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primitive.ObjectID) {
 	//1. buat context dengan timeout 100 detik
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -111,8 +111,8 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 	upsert := true
 
 	//5. buat object bson bernama filter lalu isi :
-	//{"user_id" : userId (DIAMBIL DARI PARAMETER)}
-	filter := bson.M{"user_id": userId}
+	//{"_id" : userId (DIAMBIL DARI PARAMETER)}
+	filter := bson.M{"_id": userId}
 
 	//6. buat object opt tipenya updateOptions dimana ini merepresentasikan option pada saat ngeupdate
 	//apa optionnya ? ya upsert = &upsert yaitu upsert = true,

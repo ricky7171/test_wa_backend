@@ -95,16 +95,15 @@ func Register() gin.HandlerFunc {
 		user.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
-		user.User_id = user.ID.Hex()
 
 		//8. generate token.
 		//generate JWT token from name, phone, and user id
-		token, refreshToken, _ := helper.GenerateAllTokens(*user.Name, *user.Phone, *&user.User_id)
+		token, refreshToken, _ := helper.GenerateAllTokens(*user.Name, *user.Phone, *&user.ID)
 		user.Token = &token
 		user.Refresh_token = &refreshToken
 
 		//9. insert user to database
-		resultInsertionNumber, insertErr := db.UserCollection.InsertOne(ctx, user)
+		resultInsert, insertErr := db.UserCollection.InsertOne(ctx, user)
 		defer cancel()
 		if insertErr != nil {
 			msg := fmt.Sprintf("User item was not created")
@@ -113,7 +112,7 @@ func Register() gin.HandlerFunc {
 		}
 
 		//10. send response to client
-		c.JSON(http.StatusOK, resultInsertionNumber)
+		c.JSON(http.StatusOK, resultInsert)
 
 	}
 }
@@ -158,10 +157,10 @@ func Login() gin.HandlerFunc {
 
 		//6. generate token.
 		//generate token from name, phone, and user id
-		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Name, *foundUser.Phone, *&foundUser.User_id)
+		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Name, *foundUser.Phone, *&foundUser.ID)
 
 		//7. update user with new token and new refresToken
-		helper.UpdateAllTokens(token, refreshToken, foundUser.User_id)
+		helper.UpdateAllTokens(token, refreshToken, foundUser.ID)
 
 		//8. remove password attribute, because it will send to client
 		foundUser.Password = nil
@@ -179,39 +178,37 @@ func ConnectWs() gin.HandlerFunc {
 	}
 }
 
-//get all chat with specific room
+//get all chat with specific contact
 func GetChat() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. get param room_id & last_id
-		roomID := c.Param("room_id")
-		roomObjectID, err := primitive.ObjectIDFromHex(roomID)
+		//1. get param contact_id & last_id
+
+		contactID := c.Param("contact_id")
+		contactObjectID, err := primitive.ObjectIDFromHex(contactID)
 		lastID := c.Param("last_id")
 		var lastObjectID primitive.ObjectID
 		if lastID != "" {
-			lastObjectID, err = primitive.ObjectIDFromHex(lastID)
+			lastObjectID, _ = primitive.ObjectIDFromHex(lastID)
 		}
-
 		//2. make context
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		//3. get data room with all chat in that room
-		matchRoomIDPipeline := bson.D{{"$match", bson.D{{"_id", roomObjectID}}}}
-		unwindPipeline := bson.D{{"$unwind", "$chat_history"}}
-		sortPipeline := bson.D{{"$sort", bson.D{{"chat_history._id", -1}}}}
-		paginatePipeline := bson.D{{"$match", bson.D{{"chat_history._id", bson.D{{"$lt", lastObjectID}}}}}}
+		//3. get data chat according to that contact id
+		matchContactIDPipeline := bson.D{{"$match", bson.D{{"contact_id", contactObjectID}}}}
+		sortPipeline := bson.D{{"$sort", bson.D{{"_id", -1}}}}
+		paginatePipeline := bson.D{{"$match", bson.D{{"_id", bson.D{{"$lt", lastObjectID}}}}}}
 		limitPipeline := bson.D{{"$limit", 20}}
-		groupPipeline := bson.D{{"$group", bson.D{{"_id", "$_id"}, {"chat_history", bson.M{"$push": "$chat_history"}}}}}
+		groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contact_id", 1}, {"sender_id", 1}, {"message", 1}}}}
 
 		var cursor *mongo.Cursor
 
 		if lastID == "nil" { //means this client request first page
 
-			cursor, err = db.RoomCollection.Aggregate(
+			cursor, err = db.ChatCollection.Aggregate(
 				ctx,
 				mongo.Pipeline{
-					matchRoomIDPipeline,
-					unwindPipeline,
+					matchContactIDPipeline,
 					sortPipeline,
 					limitPipeline,
 					groupPipeline,
@@ -219,11 +216,10 @@ func GetChat() gin.HandlerFunc {
 			)
 		} else { //means this client request NOT the first page
 
-			cursor, err = db.RoomCollection.Aggregate(
+			cursor, err = db.ChatCollection.Aggregate(
 				ctx,
 				mongo.Pipeline{
-					matchRoomIDPipeline,
-					unwindPipeline,
+					matchContactIDPipeline,
 					sortPipeline,
 					paginatePipeline,
 					limitPipeline,
@@ -231,6 +227,7 @@ func GetChat() gin.HandlerFunc {
 				},
 			)
 		}
+
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -265,14 +262,14 @@ func GetContact() gin.HandlerFunc {
 		defer cancel()
 
 		//3. get all data chat WHERE it contains userId
-		cursor, err := db.RoomCollection.Aggregate(
+		cursor, err := db.ContactCollection.Aggregate(
 			ctx,
 			mongo.Pipeline{
 				bson.D{
 					{
 						"$match", bson.M{
 							"users": bson.M{
-								"$all": []interface{}{userObjetID},
+								"$in": []interface{}{userObjetID},
 							},
 						},
 					},
@@ -297,6 +294,17 @@ func GetContact() gin.HandlerFunc {
 				},
 			},
 		)
+
+		// cursor, err := db.ContactCollection.Find(
+		// 	ctx,
+		// 	bson.M{
+		// 		"users": bson.M{
+		// 			"$in": []interface{}{
+		// 				userObjetID,
+		// 			},
+		// 		},
+		// 	},
+		// )
 		defer cancel()
 
 		//4. store all result in allContacts
@@ -331,8 +339,8 @@ func NewMessage() gin.HandlerFunc {
 		//4. make object model message
 		m := models.Message{Data: newChat.Message, FromUserId: c.GetString("user_id")}
 
-		//5. if client doesn't send room_id and send phone number, then it need to search wether client have interacted with this phone number before or not
-		if newChat.Room_id == "" && newChat.Phone != "" {
+		//5. if client doesn't send contact_id but send phone number, then it need to search wether client have contact with this phone number or not
+		if newChat.Contact_id == "" && newChat.Phone != "" {
 			//5.1. make user model
 			var user models.User
 
@@ -345,12 +353,12 @@ func NewMessage() gin.HandlerFunc {
 				return
 			}
 			//5.c. add user_id to message object
-			m.ToUserId = user.User_id
-		} else if newChat.Room_id != "" { //if client send room_id
+			m.ToUserId = user.ID.Hex()
+		} else if newChat.Contact_id != "" { //if client send contat_id
 			//5.a. add rooom_id to message object
-			m.Room_id = newChat.Room_id
+			m.Contact_id = newChat.Contact_id
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "room id and phone not found"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "contact id and phone not found"})
 			return
 		}
 

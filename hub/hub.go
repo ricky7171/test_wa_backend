@@ -5,17 +5,12 @@ import (
 	"encoding/json"
 	"log"
 	"time"
-	"wa/database"
+	db "wa/database"
 	"wa/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var roomCollection *mongo.Collection = database.OpenCollection(database.Client, "rooms")
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "users")
 
 //subscription example
 // {con : con1, userId : xxx123}
@@ -56,101 +51,70 @@ func SaveChat(msg models.Message) error {
 	//2. fill created_at
 	msg.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
-	//3. if room_id not found in msg object, then find room that used by sender and receiver
-	//if room not found, then make new room
+	//3. if contact_id not found in msg object, then find contact first
+	//if contact not found, then make new contact
 	newFromUserIdObject, err := primitive.ObjectIDFromHex(msg.FromUserId)
 	newToUserIdObject, err := primitive.ObjectIDFromHex(msg.ToUserId)
 
-	makeNewRoom := false //=> means, no need to make new room
-	if msg.Room_id == "" {
-		var roomExists models.Room
-		opts := options.FindOne().SetProjection(bson.M{
-			"room_id": 1,
-		})
-		err := roomCollection.FindOne(
+	makeNewContact := false //=> means, no need to make new contact
+	if msg.Contact_id == "" {
+		var contactExists models.Contact
+		err := db.ContactCollection.FindOne(
 			ctx,
 			bson.M{
-				"$or": []interface{}{
-					bson.M{
-						"$and": []interface{}{
-							bson.M{
-								"users.0": newFromUserIdObject,
-							},
-							bson.M{
-								"users.1": newToUserIdObject,
-							},
-						},
-					},
-					bson.M{
-						"$and": []interface{}{
-							bson.M{
-								"users.1": newFromUserIdObject,
-							},
-							bson.M{
-								"users.0": newToUserIdObject,
-							},
-						},
+				"users": bson.M{
+					"$all": []interface{}{
+						newFromUserIdObject,
+						newToUserIdObject,
 					},
 				},
 			},
-			opts,
-		).Decode(&roomExists)
+		).Decode(&contactExists)
 		defer cancel()
-		if err != nil { //means, room not found, then need to make new room
-			makeNewRoom = true
-		} else { //means, room found, then NO need to make new room
-			msg.Room_id = roomExists.ID.Hex()
+		if err != nil { //means, contact not found, then need to make new contact
+			makeNewContact = true
+		} else { //means, contact found, then NO need to make new contact
+			msg.Contact_id = contactExists.ID.Hex()
 		}
 
 	}
 
-	//4. if room found, then update field chat_history and insert chat in that field
-	if !makeNewRoom {
-		roomObjectID, _ := primitive.ObjectIDFromHex(msg.Room_id)
-		_, err := roomCollection.UpdateOne(ctx, bson.M{
-			"_id": roomObjectID,
-		},
-			bson.M{
-				"$push": bson.M{
-					"chat_history": bson.M{
-						"_id":        primitive.NewObjectID(),
-						"user_id":    msg.FromUserId,
-						"message":    msg.Data,
-						"created_at": msg.Created_at,
-					},
-				},
-			})
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer cancel()
-	} else { //5. if room not found, then insert new room also with that chat inside
-		newRoomId := primitive.NewObjectID()
-
-		if err != nil {
-			return nil
-		}
-
-		if err != nil {
-			return nil
-		}
-		roomCollection.InsertOne(ctx, bson.M{
-			"_id": newRoomId,
+	//4. if contact found, then set contact_id according to msg.Contact_id
+	var chat models.Chat
+	if !makeNewContact {
+		chat.Contact_id, _ = primitive.ObjectIDFromHex(msg.Contact_id)
+	} else { //5. if contact not found, then insert new contact
+		newContactId := primitive.NewObjectID()
+		chat.Contact_id = newContactId
+		_, err := db.ContactCollection.InsertOne(ctx, bson.M{
+			"_id": newContactId,
 			"users": []interface{}{
 				newFromUserIdObject,
 				newToUserIdObject,
 			},
-			"chat_history": []interface{}{
-				bson.M{
-					"_id":        primitive.NewObjectID(),
-					"user_id":    msg.FromUserId,
-					"message":    msg.Data,
-					"created_at": msg.Created_at,
-				},
-			},
 		})
 		defer cancel()
+
+		if err != nil {
+			log.Fatal(err)
+			return nil
+		}
+		defer cancel()
 	}
+
+	//6. insert new chat
+	chat.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	chat.ID = primitive.NewObjectID()
+	chat.Message = msg.Data
+	chat.Sender_id, _ = primitive.ObjectIDFromHex(msg.FromUserId)
+
+	_, err = db.ChatCollection.InsertOne(ctx, chat)
+	defer cancel()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cancel()
 
 	return nil
 
@@ -169,7 +133,7 @@ func (h *Hub) Run() {
 		case m := <-h.Broadcast: //when there is message
 
 			//1. store to database
-			go SaveChat(m)
+			SaveChat(m)
 
 			//2. convert object m ke byte[]
 			dataSend, err := json.Marshal(m)
