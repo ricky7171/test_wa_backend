@@ -61,7 +61,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phone\" : \"085727322759\",\r\n    \"name\" : \"daniel ricky saputro\",\r\n    \"password\" : \"welcome3\"\r\n}"
+							"raw": "{\r\n    \"phone\" : \"08333333333\",\r\n    \"name\" : \"Intan Paramitha\",\r\n    \"password\" : \"welcome3\"\r\n}"
 						},
 						"url": {
 							"raw": "localhost:8080/api/auth/register",
@@ -91,7 +91,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1MiIsIlVpZCI6IjYwNTNiZjYxNTU5ODU0Y2NhY2QyY2IyYyIsImV4cCI6MTYxNjE4NzYzNn0.AZ7JxoWhNxT6YCmDr7uz53bDvlgjPuW45Z-3O6ua-nA",
 									"type": "string"
 								}
 							]
@@ -116,7 +116,7 @@
 							}
 						],
 						"url": {
-							"raw": "localhost:8080/api/chat/604c25fc992ccf2af4b1b525",
+							"raw": "localhost:8080/api/chat/6053d441f0b16373c887e18c/nil",
 							"host": [
 								"localhost"
 							],
@@ -124,7 +124,8 @@
 							"path": [
 								"api",
 								"chat",
-								"604c25fc992ccf2af4b1b525"
+								"6053d441f0b16373c887e18c",
+								"nil"
 							]
 						}
 					},
@@ -138,7 +139,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNTMzMjA3MjlkOGM0ZDk1ZGUyNjlmNiIsImV4cCI6MTYxNjE5Njg0OH0.Wf46n6kDLsteWEj0HiRH-AvbAMDbUHSF_iGgz21uci8",
 									"type": "string"
 								}
 							]
@@ -178,7 +179,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGRlZDhhOWFhMzljMWI1ZDM4MjEwYyIsImV4cCI6MTYxNTgwOTEyMH0.kRtBT0_bHQw_pWzbEOYsbz215dfzzFCmcdovHuXdof8",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1MiIsIlVpZCI6IjYwNTNiZjYxNTU5ODU0Y2NhY2QyY2IyYyIsImV4cCI6MTYxNjE4NzYzNn0.AZ7JxoWhNxT6YCmDr7uz53bDvlgjPuW45Z-3O6ua-nA",
 									"type": "string"
 								}
 							]
@@ -187,7 +188,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"phone\": \"08000000000\", \"message\": \"Yoga ?\"}",
+							"raw": "{\"phone\": \"08333333333\", \"message\": \"JAWAB WOI !\"}",
 							"options": {
 								"raw": {
 									"language": "json"
