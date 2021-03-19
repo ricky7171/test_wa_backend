@@ -131,6 +131,9 @@
         #log .chat_datetime {
             font-size: 12px;
         }
+        #logout_button {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -388,6 +391,8 @@
 
             //in every contact, give event on click to see chat log
             $('body').on("click", ".person", function () {
+                removeLoadMoreButton();
+                lastChatId = "nil"
                 var thisElement = $(this);
                 var contactId = $(this).attr("contact_id");
                 var toUserId = $(this).attr("user_id");
