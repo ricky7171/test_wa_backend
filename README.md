@@ -115,7 +115,7 @@ Hi sir, here I will show my app chat project.
 
 ![alt text](https://github.com/ricky7171/test_wa_backend/blob/master/requirement/screenshot/continue%20chatting.png?raw=true)
 
-## How to run app
+## How to Run App Locally
 
 1. Make sure you have installed golang (https://golang.org/doc/install) & mongoDB (https://docs.mongodb.com/manual/installation/)
 
@@ -156,7 +156,7 @@ Hi sir, here I will show my app chat project.
 
   
 
-## How to try API on postman
+## How to Try API on Postman
 
 1. Open project directory
 
@@ -187,8 +187,8 @@ Add indexes in certain collections as needed <br>
  I have added indexes to 3 collections in certain fields so that the reading process is faster.
   </li>
   <li>
-Using go routine so that the websocket process can run simultaneously (listening from the client and sending data to the client) <br>
- I use go 2 routine to listen and write data to client. I also use channel as a "bridge" for websocket data communications, like example when user connect to websocket, send message, retreive message.
+Using go routine so that the websocket process can run simultaneously <br>
+ I use go routine to listen and write data to client. I also use channel as a "bridge" for websocket data communications, like example when user connect to websocket, send message, retreive message.
   </li>
   <li>
 Using mutex to prevent deadlock <br>
@@ -203,4 +203,4 @@ I test every query on mongo terminal and measure that time execution (using prof
   
   
 
-For the future, if this application develops with more complex business processes and our servers are too busy, then we can do several things such as adding new servers, implementing microservices, sharding in Mongodb, etc.
+For the future, if this application develops with more complex business processes and our servers are too busy, maybe we can do several things such as adding new servers, implementing microservices, sharding in Mongodb, etc.
