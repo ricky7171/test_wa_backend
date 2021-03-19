@@ -31,7 +31,7 @@ func main() {
 	router.LoadHTMLGlob("views/*")
 
 	// Middleware that used to log all request on terminal
-	router.Use(gin.Logger())
+	//router.Use(gin.Logger())
 
 	//front-end router
 	routes.ViewRoutes(router)
