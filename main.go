@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"wa/hub"
 	"wa/middleware"
 	routes "wa/routes"
@@ -49,5 +50,5 @@ func main() {
 	routes.AuthRoutes(router)
 
 	//run server on port 8080
-	router.Run("0.0.0.0:8080")
+	router.Run(":" + os.Getenv("PORT"))
 }
