@@ -51,7 +51,7 @@ func main() {
 
 	//run server
 	var port string
-	port = os.Getenv("POST")
+	port = os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
