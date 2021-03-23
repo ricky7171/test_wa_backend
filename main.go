@@ -6,6 +6,7 @@ import (
 	"wa/middleware"
 	routes "wa/routes"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +28,7 @@ func main() {
 
 	//make router instance
 	router := gin.New()
+	router.Use(cors.Default())
 
 	//load all html
 	router.LoadHTMLGlob("views/*")
