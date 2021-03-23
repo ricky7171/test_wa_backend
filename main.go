@@ -49,6 +49,11 @@ func main() {
 	//- auth router
 	routes.AuthRoutes(router)
 
-	//run server on port 8080
-	router.Run(":" + os.Getenv("PORT"))
+	//run server
+	var port string
+	port = os.Getenv("POST")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run(":" + port)
 }
