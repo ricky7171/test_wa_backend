@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,35 +16,33 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var validate = validator.New()
 
 //HashPassword is used to encrypt the password before it is stored in the DB
 func HashPassword(password string) string {
-	data := []byte(password)
-	bytes := md5.Sum(data)
-	if len(bytes) == 0 {
-		log.Panic("cannot hash password")
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 8)
+	if err != nil {
+		log.Panic(err)
 	}
 
-	return string(hex.EncodeToString(bytes[:]))
+	return string(bytes)
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
 //userPassword is plain password
 //providedPassword is hashed password
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
-	//compareHashAndPassword(hashed password, plain password)
-	var check bool
-	var msg string
-	encryptedUserPassword := HashPassword(userPassword)
-	if encryptedUserPassword == providedPassword {
-		check = true
-		msg = ""
-	} else {
-		check = false
+
+	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
+	check := true
+	msg := ""
+
+	if err != nil {
 		msg = fmt.Sprintf("login or passowrd is incorrect")
+		check = false
 	}
 
 	return check, msg
@@ -69,6 +65,7 @@ func Register() gin.HandlerFunc {
 
 		//4. validate user
 		validationErr := validate.Struct(user)
+
 		if validationErr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 			return
@@ -88,19 +85,19 @@ func Register() gin.HandlerFunc {
 		}
 
 		//6. hash user password
-		password := HashPassword(*user.Password)
-		user.Password = &password
+		password := HashPassword(user.Password)
+		user.Password = password
 
 		//7. fill attribute : created_at, updated_at, id, token, and refresh_token
-		user.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-		user.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
 
-		//8. generate token.
+		//8. generate token. => useless
 		//generate JWT token from name, phone, and user id
-		token, refreshToken, _ := helper.GenerateAllTokens(*user.Name, *user.Phone, *&user.ID)
-		user.Token = &token
-		user.Refresh_token = &refreshToken
+
+		// user.Token = &token
+		// user.Refresh_token = &refreshToken
 
 		//9. insert user to database
 		resultInsert, insertErr := db.UserCollection.InsertOne(ctx, user)
@@ -148,7 +145,7 @@ func Login() gin.HandlerFunc {
 		//*foundUser.Password is hashed password
 		//if wrong, return error : login or passowrd is incorrect
 		//this process will take long time (about 1 second), because bcrypt is complex
-		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
+		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
 		if passwordIsValid != true {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -157,13 +154,14 @@ func Login() gin.HandlerFunc {
 
 		//6. generate token.
 		//generate token from name, phone, and user id
-		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Name, *foundUser.Phone, *&foundUser.ID)
+		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Name, foundUser.Phone, foundUser.ID)
 
 		//7. update user with new token and new refresToken
-		helper.UpdateAllTokens(token, refreshToken, foundUser.ID)
+		foundUser.Token = token
+		foundUser.RefreshToken = refreshToken
 
 		//8. remove password attribute, because it will send to client
-		foundUser.Password = nil
+		foundUser.Password = ""
 
 		//9. send response to client
 		c.JSON(http.StatusOK, foundUser)
