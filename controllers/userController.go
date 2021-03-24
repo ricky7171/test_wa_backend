@@ -93,13 +93,7 @@ func Register() gin.HandlerFunc {
 		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
 
-		//8. generate token. => useless
-		//generate JWT token from name, phone, and user id
-
-		// user.Token = &token
-		// user.Refresh_token = &refreshToken
-
-		//9. insert user to database
+		//8. insert user to database
 		resultInsert, insertErr := db.UserCollection.InsertOne(ctx, user)
 		defer cancel()
 		if insertErr != nil {
@@ -108,7 +102,7 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		//10. send response to client
+		//9. send response to client
 		c.JSON(http.StatusOK, resultInsert)
 
 	}
@@ -141,8 +135,8 @@ func Login() gin.HandlerFunc {
 		}
 
 		//5. check userfound password with client request password
-		//*user.Password is password plain
-		//*foundUser.Password is hashed password
+		//user.Password is password plain
+		//foundUser.Password is hashed password
 		//if wrong, return error : login or passowrd is incorrect
 		//this process will take long time (about 1 second), because bcrypt is complex
 		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
@@ -293,16 +287,6 @@ func GetContact() gin.HandlerFunc {
 			},
 		)
 
-		// cursor, err := db.ContactCollection.Find(
-		// 	ctx,
-		// 	bson.M{
-		// 		"users": bson.M{
-		// 			"$in": []interface{}{
-		// 				userObjetID,
-		// 			},
-		// 		},
-		// 	},
-		// )
 		defer cancel()
 
 		//4. store all result in allContacts
