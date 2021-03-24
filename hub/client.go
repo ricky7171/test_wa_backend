@@ -65,36 +65,15 @@ func (s subscription) readPump() {
 
 			//convert plain message data to formated message struct
 			//example messageMap :
-			//{"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
-			var messageMap map[string]interface{}
-			if err := json.Unmarshal(msg, &messageMap); err != nil {
+			//{"data":"Hi","fromUserId":"605ae53dce933ec8b23f9cc1","toUserId":"605ae3f2ce933ec8b23f9cbd","contactId":"605ae6dcdbadf9c66aa4fe60"}
+			var message models.Message
+
+			if err := json.Unmarshal(msg, &message); err != nil {
 				log.Printf("Cannot unmarshall message : %s", msg)
 				break
 			}
 
-			//conver tall key in messageMap
-			data, ok := messageMap["data"].(string)
-			if !ok {
-				break
-			}
-			fromUserID, ok := messageMap["fromUserId"].(string)
-			if !ok {
-				break
-			}
-			toUserID, ok := messageMap["toUserId"].(string)
-			if !ok {
-				break
-			}
-			contactID, ok := messageMap["contactId"].(string)
-			if !ok {
-				break
-			}
-
-			//build model message
-			m := models.Message{Data: data, FromUserId: fromUserID, ToUserId: toUserID, Contact_id: contactID}
-
-			//send to broadcast channel
-			MainHub.Broadcast <- m
+			MainHub.Broadcast <- message
 
 		}
 
