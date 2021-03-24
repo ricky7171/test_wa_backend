@@ -144,22 +144,14 @@ func (h *Hub) Run() {
 			//3. send to ws
 			//3.a. send to sender ws
 			if _, ok := h.Users[m.FromUserId]; ok {
-				select {
-				case h.Users[m.FromUserId].send <- dataSend: //send message to sender through "send" channel
-				default: //this is when fail to send the message (maybe user exit from browser)
-					break
-				}
+				h.Users[m.FromUserId].send <- dataSend
 			} else {
 				break
 			}
 
 			//3.b. send to receiver ws
 			if _, ok := h.Users[m.ToUserId]; ok {
-				select {
-				case h.Users[m.ToUserId].send <- dataSend: //send message to receiver through "send" channel
-				default: //this is when fail to send the message (maybe user exit from browser)
-				}
-			} else {
+				h.Users[m.ToUserId].send <- dataSend //send message to receiver through "send" channel
 			}
 
 		}
