@@ -12,7 +12,7 @@ type Message struct {
 	FromUserId string    `json:"fromUserId"`
 	ToUserId   string    `json:"toUserId"`
 	Created_at time.Time `json:",omitempty"`
-	Contact_id string    `json:"contact_id"`
+	Contact_id string    `json:"contactId"`
 }
 
 type NewChat struct {
