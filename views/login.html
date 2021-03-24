@@ -63,6 +63,7 @@
             url: "api/auth/login",
             data: JSON.stringify(body),
             contentType: "application/json; charset=utf-8",
+            accepts: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, textStatus) {
                 dataString = JSON.stringify(data);
