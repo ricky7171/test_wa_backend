@@ -294,6 +294,7 @@
                     type: "GET",
                     url: "api/contact",
                     contentType: "application/json; charset=utf-8",
+                    accepts: "application/json; charset=utf-8",
                     headers: {
                         "Authorization": "Bearer " + access['token']
                     },
@@ -308,7 +309,7 @@
                             //nanti yang direturn dari API kira-kira seperti ini : [{A,B},{C,A},{D,A}]
                             //kita harus cari nama teman kita dulu
                             var tempFriend;
-                            if(data[i]['users_info'][0]['_id'] == access['ID']) {
+                            if(data[i]['users_info'][0]['_id'] == access['_id']) {
                                 //jika data pertama adalah data diri kita sendiri, maka data teman kita pasti ada di data kedua
                                 tempFriend = data[i]['users_info'][1];
                             } else {
@@ -335,6 +336,7 @@
                     type: "GET",
                     url: "api/chat/" + contactId + "/" + lastChatId,
                     contentType: "application/json; charset=utf-8",
+                    accepts: "application/json; charset=utf-8",
                     headers: {
                         "Authorization": "Bearer " + access['token']
                     },
@@ -372,7 +374,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var temp = data[i];
                             
-                            if (temp['sender_id'] == access['ID']) {
+                            if (temp['sender_id'] == access['_id']) {
                                 addMessage(true, true,"Me",temp['message'], scrollToBottom);
                             } else {
                                 addMessage(true, false,name,temp['message'], scrollToBottom);
@@ -426,6 +428,7 @@
                     url: "api/new_chat",
                     data: JSON.stringify(body),
                     contentType: "application/json; charset=utf-8",
+                    accepts: "application/json; charset=utf-8",
                     headers: {
                         "Authorization": "Bearer " + access['token']
                     },
@@ -440,12 +443,14 @@
 
             });
 
-
-
             //connect to websocket 
             if (window["WebSocket"]) {
-                const userId = access['ID'];
-                conn = new WebSocket("wss://" + document.location.host + "/ws/" + userId + "?access_token=" + access['token']);
+                const userId = access['_id'];
+                var protocol = "ws://";
+                if (location.protocol === 'https:') {
+                    protocol = "wss://"
+                }
+                conn = new WebSocket(protocol + document.location.host + "/ws/" + userId + "?access_token=" + access['token']);
                 conn.onclose = function (evt) {
                     appendLog("Connection closed.");
                 };
@@ -455,7 +460,7 @@
                         var plainMessage = messages[i];
                         var formattedMessage = JSON.parse(plainMessage);
                         //this means, when incoming message is an acknowledge that current user message was sent to receiver, then..
-                        if(formattedMessage['fromUserId'] == access['ID']) {
+                        if(formattedMessage['fromUserId'] == access['_id']) {
                             //if current user is opening that chat log according to this message
                             if($("#send_chat_button").attr("to_user_id") == formattedMessage["toUserId"]) {
                                 addMessage(false, true,"Me",formattedMessage['data']);
@@ -497,7 +502,7 @@
 
                 var sendData = {
                     "data": value,
-                    "fromUserId" : access['ID'],
+                    "fromUserId" : access['_id'],
                     "toUserId" : $("#send_chat_button").attr("to_user_id"),
                     "contactId" : $("#send_chat_button").attr("contact_id")
                 };
