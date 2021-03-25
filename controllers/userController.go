@@ -88,7 +88,7 @@ func Register() gin.HandlerFunc {
 		password := HashPassword(user.Password)
 		user.Password = password
 
-		//7. fill attribute : created_at, updated_at, id, token, and refresh_token
+		//7. fill attribute : createdAt, updatedAt, id, token, and refreshToken
 		user.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
@@ -165,7 +165,7 @@ func Login() gin.HandlerFunc {
 
 func ConnectWs() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Param("user_id")
+		userID := c.Param("userId")
 		hub.ServeWs(c.Writer, c.Request, userID)
 	}
 }
@@ -173,11 +173,11 @@ func ConnectWs() gin.HandlerFunc {
 //get all chat with specific contact
 func GetChat() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//1. get param contact_id & last_id
+		//1. get param contactId & lastId
 
-		contactID := c.Param("contact_id")
+		contactID := c.Param("contactId")
 		contactObjectID, err := primitive.ObjectIDFromHex(contactID)
-		lastID := c.Param("last_id")
+		lastID := c.Param("lastId")
 		var lastObjectID primitive.ObjectID
 		if lastID != "" {
 			lastObjectID, _ = primitive.ObjectIDFromHex(lastID)
@@ -187,11 +187,11 @@ func GetChat() gin.HandlerFunc {
 		defer cancel()
 
 		//3. get data chat according to that contact id
-		matchContactIDPipeline := bson.D{{"$match", bson.D{{"contact_id", contactObjectID}}}}
+		matchContactIDPipeline := bson.D{{"$match", bson.D{{"contactId", contactObjectID}}}}
 		sortPipeline := bson.D{{"$sort", bson.D{{"_id", -1}}}}
 		paginatePipeline := bson.D{{"$match", bson.D{{"_id", bson.D{{"$lt", lastObjectID}}}}}}
 		limitPipeline := bson.D{{"$limit", 20}}
-		groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contact_id", 1}, {"sender_id", 1}, {"message", 1}}}}
+		groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contactId", 1}, {"senderId", 1}, {"message", 1}}}}
 
 		var cursor *mongo.Cursor
 
@@ -242,8 +242,8 @@ func GetChat() gin.HandlerFunc {
 func GetContact() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		//1. get param user_id and make objectID from that
-		userID := c.GetString("user_id")
+		//1. get param userId and make objectID from that
+		userID := c.GetString("userId")
 		userObjetID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error convert from string to objectID"})
@@ -272,15 +272,15 @@ func GetContact() gin.HandlerFunc {
 							"from":         "users",
 							"localField":   "users",
 							"foreignField": "_id",
-							"as":           "users_info",
+							"as":           "usersInfo",
 						},
 					},
 				},
 				bson.D{
 					{
 						"$project", bson.M{
-							"users_info._id":  1,
-							"users_info.name": 1,
+							"usersInfo._id":  1,
+							"usersInfo.name": 1,
 						},
 					},
 				},
@@ -319,10 +319,10 @@ func NewMessage() gin.HandlerFunc {
 		}
 
 		//4. make object model message
-		m := models.Message{Data: newChat.Message, FromUserId: c.GetString("user_id")}
+		m := models.Message{Data: newChat.Message, FromUserId: c.GetString("userId")}
 
-		//5. if client doesn't send contact_id but send phone number, then it need to search wether client have contact with this phone number or not
-		if newChat.Contact_id == "" && newChat.Phone != "" {
+		//5. if client doesn't send contactId but send phone number, then it need to search wether client have contact with this phone number or not
+		if newChat.ContactId == "" && newChat.Phone != "" {
 			//5.1. make user model
 			var user models.User
 
@@ -334,11 +334,11 @@ func NewMessage() gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			//5.c. add user_id to message object
+			//5.c. add userId to message object
 			m.ToUserId = user.ID.Hex()
-		} else if newChat.Contact_id != "" { //if client send contat_id
-			//5.a. add rooom_id to message object
-			m.Contact_id = newChat.Contact_id
+		} else if newChat.ContactId != "" { //if client send contatId
+			//5.a. add rooomId to message object
+			m.ContactId = newChat.ContactId
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "contact id and phone not found"})
 			return

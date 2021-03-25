@@ -48,16 +48,16 @@ func SaveChat(msg models.Message) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	//2. fill created_at
-	msg.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	//2. fill createdAt
+	msg.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
-	//3. if contact_id not found in msg object, then find contact first
+	//3. if contactId not found in msg object, then find contact first
 	//if contact not found, then make new contact
 	newFromUserIdObject, err := primitive.ObjectIDFromHex(msg.FromUserId)
 	newToUserIdObject, err := primitive.ObjectIDFromHex(msg.ToUserId)
 
 	makeNewContact := false //=> means, no need to make new contact
-	if msg.Contact_id == "" {
+	if msg.ContactId == "" {
 		var contactExists models.Contact
 		err := db.ContactCollection.FindOne(
 			ctx,
@@ -74,39 +74,43 @@ func SaveChat(msg models.Message) error {
 		if err != nil { //means, contact not found, then need to make new contact
 			makeNewContact = true
 		} else { //means, contact found, then NO need to make new contact
-			msg.Contact_id = contactExists.ID.Hex()
+			msg.ContactId = contactExists.ID.Hex()
 		}
 
 	}
 
-	//4. if contact found, then set contact_id according to msg.Contact_id
+	//4. if contact found, then set contactId according to msg.ContactId
 	var chat models.Chat
 	if !makeNewContact {
-		chat.Contact_id, _ = primitive.ObjectIDFromHex(msg.Contact_id)
+		chat.ContactId, _ = primitive.ObjectIDFromHex(msg.ContactId)
 	} else { //5. if contact not found, then insert new contact
 		newContactId := primitive.NewObjectID()
-		chat.Contact_id = newContactId
-		_, err := db.ContactCollection.InsertOne(ctx, bson.M{
-			"_id": newContactId,
-			"users": []interface{}{
-				newFromUserIdObject,
-				newToUserIdObject,
-			},
-		})
+
+		var contact models.Contact
+		contact.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		contact.ID = newContactId
+		contact.Users = []primitive.ObjectID{
+			newFromUserIdObject,
+			newToUserIdObject,
+		}
+
+		_, err := db.ContactCollection.InsertOne(ctx, contact)
 		defer cancel()
 
 		if err != nil {
 			log.Fatal(err)
 			return nil
 		}
-		defer cancel()
+
+		chat.ContactId = newContactId
+
 	}
 
 	//6. insert new chat
-	chat.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	chat.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 	chat.ID = primitive.NewObjectID()
 	chat.Message = msg.Data
-	chat.Sender_id, _ = primitive.ObjectIDFromHex(msg.FromUserId)
+	chat.SenderId, _ = primitive.ObjectIDFromHex(msg.FromUserId)
 
 	_, err = db.ChatCollection.InsertOne(ctx, chat)
 	defer cancel()

@@ -18,8 +18,8 @@ func Authentication() gin.HandlerFunc {
 		//or from header Sec-WebSocket-Protocl (for ws connection)
 		if c.Request.Header.Get("Authorization") != "" {
 			plainToken = c.Request.Header.Get("Authorization")
-		} else if c.Query("access_token") != "" {
-			plainToken = "Bearer " + c.Query("access_token")
+		} else if c.Query("accessToken") != "" {
+			plainToken = "Bearer " + c.Query("accessToken")
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not authorized !"})
 			c.Abort()
@@ -42,13 +42,14 @@ func Authentication() gin.HandlerFunc {
 		if err != "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			c.Abort()
+
 			return
 		}
 
 		//set value name, phone,uid di context
 		c.Set("name", claims.Name)
 		c.Set("phone", claims.Phone)
-		c.Set("user_id", claims.Uid)
+		c.Set("userId", claims.ID)
 		c.Next()
 
 	}

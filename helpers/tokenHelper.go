@@ -16,11 +16,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// SignedDetails : ini adalah representasi dari token JWT
-type SignedDetails struct {
+// SignedTokenDetails is representation of JWT Token payload
+type SignedTokenDetails struct {
 	Name  string
 	Phone string
-	Uid   string
+	ID    string
+	jwt.StandardClaims
+}
+
+// SignedRefreshTokenDetails is representation of JWT Token payload
+type SignedRefreshTokenDetails struct {
+	ID string
 	jwt.StandardClaims
 }
 
@@ -29,22 +35,28 @@ var userCollection *mongo.Collection = database.OpenCollection(database.Client, 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
 // GenerateAllTokens generates both the detailed token and refresh token
-func GenerateAllTokens(name string, phone string, uid primitive.ObjectID) (signedToken string, signedRefreshToken string, err error) {
-	claims := &SignedDetails{
+func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (signedToken string, signedRefreshToken string, err error) {
+	userIdString := userId.Hex()
+
+	//1. generate claims for token payload
+	claims := &SignedTokenDetails{
 		Name:  name,
 		Phone: phone,
-		Uid:   uid.Hex(),
+		ID:    userIdString,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
 		},
 	}
 
-	refreshClaims := &SignedDetails{
+	//2. generate refresh claims for refresh token payload
+	refreshClaims := &SignedRefreshTokenDetails{
+		ID: userIdString,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
 		},
 	}
 
+	//3. generate token and refresh token according to claims & refreshClaims
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
 
@@ -58,11 +70,10 @@ func GenerateAllTokens(name string, phone string, uid primitive.ObjectID) (signe
 
 //ValidateToken validates the jwt token
 //convert token jadi data user
-func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
-
+func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
-		&SignedDetails{},
+		&SignedTokenDetails{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(SECRET_KEY), nil
 		},
@@ -73,7 +84,7 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 		return
 	}
 
-	claims, ok := token.Claims.(*SignedDetails)
+	claims, ok := token.Claims.(*SignedTokenDetails)
 	if !ok {
 		msg = fmt.Sprintf("the token is invalid")
 		msg = err.Error()
@@ -99,12 +110,12 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primi
 	var updateObj primitive.D
 
 	//3. isi object BSON :
-	//{"token" : signedToken (DIAMBIL DARI PARAMETER), "refresh_token" : signedRefreshToken (DIAMBIL DARI PARAMETER), "updated_at" : (TIMENOW)}
+	//{"token" : signedToken (DIAMBIL DARI PARAMETER), "refreshToken" : signedRefreshToken (DIAMBIL DARI PARAMETER), "updatedAt" : (TIMENOW)}
 	updateObj = append(updateObj, bson.E{"token", signedToken})
-	updateObj = append(updateObj, bson.E{"refresh_token", signedRefreshToken})
+	updateObj = append(updateObj, bson.E{"refreshToken", signedRefreshToken})
 
-	Updated_at, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-	updateObj = append(updateObj, bson.E{"updated_at", Updated_at})
+	UpdatedAt, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	updateObj = append(updateObj, bson.E{"updatedAt", UpdatedAt})
 
 	//4. bkin variabel upsert dimana ini digunakan sebagai penanda, bahwa
 	//kalau datanya tidak ada maka insert data tersebut (sama persis kek upsertnya di laravel)

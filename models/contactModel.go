@@ -7,7 +7,7 @@ import (
 )
 
 type Contact struct {
-	ID         primitive.ObjectID   `bson:"_id"`
-	Users      []primitive.ObjectID `json:"users"`
-	Created_at time.Time            `json:"created_at"`
+	ID        primitive.ObjectID   `bson:"_id"`
+	Users     []primitive.ObjectID `json:"users" bson:"users"`
+	CreatedAt time.Time            `json:"createdAt" bson:"createdAt"`
 }

@@ -7,9 +7,9 @@ import (
 )
 
 type Chat struct {
-	ID         primitive.ObjectID `bson:"_id"`
-	Contact_id primitive.ObjectID `json:"contact_id"`
-	Sender_id  primitive.ObjectID `json:"sender_id"`
-	Message    string             `json:"message"`
-	Created_at time.Time          `json:"created_at"`
+	ID        primitive.ObjectID `bson:"_id"`
+	ContactId primitive.ObjectID `json:"contactId" bson:"contactId"`
+	SenderId  primitive.ObjectID `json:"senderId" bson:"senderId"`
+	Message   string             `json:"message" bson:"message"`
+	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 }
