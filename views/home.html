@@ -309,12 +309,12 @@
                             //nanti yang direturn dari API kira-kira seperti ini : [{A,B},{C,A},{D,A}]
                             //kita harus cari nama teman kita dulu
                             var tempFriend;
-                            if(data[i]['users_info'][0]['_id'] == access['_id']) {
+                            if(data[i]['usersInfo'][0]['_id'] == access['_id']) {
                                 //jika data pertama adalah data diri kita sendiri, maka data teman kita pasti ada di data kedua
-                                tempFriend = data[i]['users_info'][1];
+                                tempFriend = data[i]['usersInfo'][1];
                             } else {
                                 //kalau data pertama bukan data diri kita sendiri, berarti ya itu data teman kita
-                                tempFriend = data[i]['users_info'][0];
+                                tempFriend = data[i]['usersInfo'][0];
                             }
                             var name = tempFriend['name'];
                             var contact_id = data[i]['_id'];
@@ -374,7 +374,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var temp = data[i];
                             
-                            if (temp['sender_id'] == access['_id']) {
+                            if (temp['senderId'] == access['_id']) {
                                 addMessage(true, true,"Me",temp['message'], scrollToBottom);
                             } else {
                                 addMessage(true, false,name,temp['message'], scrollToBottom);
