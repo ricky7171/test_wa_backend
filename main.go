@@ -33,18 +33,9 @@ func main() {
 
 	// Middleware that used to log all request on terminal
 	//router.Use(gin.Logger())
+
+	// Middleware that used to setting CORS
 	router.Use(middleware.CORSMiddleware())
-	// router.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"*"},
-	// 	AllowMethods:     []string{"PUT", "PATCH"},
-	// 	AllowHeaders:     []string{"content-type"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// 	AllowOriginFunc: func(origin string) bool {
-	// 		return origin == "https://github.com"
-	// 	},
-	// 	MaxAge: 12 * time.Hour,
-	// }))
 
 	//front-end router
 	routes.ViewRoutes(router)
