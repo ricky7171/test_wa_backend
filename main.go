@@ -2,12 +2,10 @@ package main
 
 import (
 	"os"
-	"time"
 	"wa/hub"
 	"wa/middleware"
 	routes "wa/routes"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,17 +33,18 @@ func main() {
 
 	// Middleware that used to log all request on terminal
 	//router.Use(gin.Logger())
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "PATCH"},
-		AllowHeaders:     []string{"content-type"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
-		},
-		MaxAge: 12 * time.Hour,
-	}))
+	router.Use(middleware.CORSMiddleware())
+	// router.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{"*"},
+	// 	AllowMethods:     []string{"PUT", "PATCH"},
+	// 	AllowHeaders:     []string{"content-type"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// 	AllowOriginFunc: func(origin string) bool {
+	// 		return origin == "https://github.com"
+	// 	},
+	// 	MaxAge: 12 * time.Hour,
+	// }))
 
 	//front-end router
 	routes.ViewRoutes(router)
