@@ -366,11 +366,11 @@ func NewMessage() gin.HandlerFunc {
 
 //token refresh
 //used to refresh access token that has been expired
-func TokenRefresh() gin.HandlerFunc {
+func RefreshToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. make ctx with timeout 100 second
-		//var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		//defer cancel()
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 
 		//2. get token from body
 		var request map[string]interface{}
@@ -382,11 +382,41 @@ func TokenRefresh() gin.HandlerFunc {
 		}
 
 		//4. check if token is present
-		if request["token"] == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Token is not present"})
+		plainToken, ok := request["refresh_token"].(string)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "refresh_token is not present"})
 			return
 		}
 
-		//5.
+		//5. change plain token to be signedDetails that contains user id
+		claims, errMessage := helper.ValidateRefreshToken(plainToken)
+		if errMessage != "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": errMessage})
+			c.Abort()
+			return
+		}
+
+		//6. get user with ID that get from claims
+		var user models.User
+		userID, _ := primitive.ObjectIDFromHex(claims.ID)
+		err := db.UserCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
+		defer cancel()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+			return
+		}
+
+		//7. generate new token and refresh token
+		token, refreshToken, _ := helper.GenerateAllTokens(user.Name, user.Phone, user.ID)
+
+		//8. update user with new token and new refresToken
+		user.Token = token
+		user.RefreshToken = refreshToken
+
+		//9. remove password attribute, because it will send to client
+		user.Password = ""
+
+		//10. send response to client
+		c.JSON(http.StatusOK, user)
 	}
 }

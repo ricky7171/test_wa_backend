@@ -23,7 +23,7 @@ type SignedTokenDetails struct {
 	jwt.StandardClaims
 }
 
-// SignedRefreshTokenDetails is representation of JWT Token payload
+// SignedRefreshTokenDetails is representation of JWT Refresh Token payload
 type SignedRefreshTokenDetails struct {
 	ID string
 	jwt.StandardClaims
@@ -38,6 +38,7 @@ func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (si
 	userIdString := userId.Hex()
 
 	//1. generate claims for token payload
+	//token will expired 24 hours
 	claims := &SignedTokenDetails{
 		Name:  name,
 		Phone: phone,
@@ -48,6 +49,7 @@ func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (si
 	}
 
 	//2. generate refresh claims for refresh token payload
+	//refresh token will expired 168 hours (1 week)
 	refreshClaims := &SignedRefreshTokenDetails{
 		ID: userIdString,
 		StandardClaims: jwt.StandardClaims{
@@ -85,6 +87,37 @@ func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) 
 	}
 
 	claims, ok := token.Claims.(*SignedTokenDetails)
+	if !ok {
+		msg = fmt.Sprintf("the token is invalid")
+		msg = err.Error()
+		return
+	}
+
+	if claims.ExpiresAt < time.Now().Local().Unix() {
+		msg = fmt.Sprintf("token is expired")
+		msg = err.Error()
+		return
+	}
+
+	return claims, msg
+}
+
+//convert refresh_token to SignedRefreshTokenDetails that contain user id
+func ValidateRefreshToken(signedToken string) (claims *SignedRefreshTokenDetails, msg string) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&SignedRefreshTokenDetails{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(SECRET_KEY), nil
+		},
+	)
+
+	if err != nil {
+		msg = err.Error()
+		return
+	}
+
+	claims, ok := token.Claims.(*SignedRefreshTokenDetails)
 	if !ok {
 		msg = fmt.Sprintf("the token is invalid")
 		msg = err.Error()
