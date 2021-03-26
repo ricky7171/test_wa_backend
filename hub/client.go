@@ -67,7 +67,7 @@ func (s subscription) readPump() {
 
 			//convert plain message data to formated message struct
 			//example messageMap :
-			//{"data":"Hi","fromUserId":"605ae53dce933ec8b23f9cc1","toUserId":"605ae3f2ce933ec8b23f9cbd","contactId":"605ae6dcdbadf9c66aa4fe60"}
+			//{"data":"Hi","from_user_id":"605ae53dce933ec8b23f9cc1","to_user_id":"605ae3f2ce933ec8b23f9cbd","contact_id":"605ae6dcdbadf9c66aa4fe60"}
 			var message models.Message
 
 			if err := json.Unmarshal(msg, &message); err != nil {
