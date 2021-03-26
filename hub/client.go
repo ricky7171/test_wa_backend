@@ -2,7 +2,7 @@ package hub
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -53,14 +53,15 @@ func (s subscription) readPump() {
 	c.ws.SetReadLimit(maxMessageSize)
 	err := c.ws.SetReadDeadline(time.Now().Add(pongWait))
 	if err != nil {
-		log.Printf("error saat setReadDeadline")
+		fmt.Println("Error when SetReadDeadline ws")
+		return
 	} else {
 		c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 		for {
 			_, msg, err := c.ws.ReadMessage() //waiting message from websocket
 			if err != nil {
 				c.write(websocket.CloseMessage, []byte{})
-				log.Printf("[close] %v", err)
+				fmt.Println("[close] ", err)
 				break
 			}
 
@@ -70,7 +71,7 @@ func (s subscription) readPump() {
 			var message models.Message
 
 			if err := json.Unmarshal(msg, &message); err != nil {
-				log.Printf("Cannot unmarshall message : %s", msg)
+				fmt.Println("Cannot unmarshall message : ", msg)
 				break
 			}
 
@@ -127,7 +128,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 	//then, save the connection to variable ws
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 	//2. just make connection instance and save to variable c

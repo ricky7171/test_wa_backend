@@ -3,7 +3,6 @@ package helper
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -61,8 +60,9 @@ func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (si
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
 
 	if err != nil {
-		log.Panic(err)
-		return
+		token = ""
+		refreshToken = ""
+		fmt.Println("error : ", err)
 	}
 
 	return token, refreshToken, err
@@ -101,7 +101,7 @@ func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) 
 }
 
 //UpdateAllTokens renews the user tokens when they login
-func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primitive.ObjectID) {
+func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primitive.ObjectID) error {
 	//1. buat context dengan timeout 100 detik
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -144,9 +144,9 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primi
 	defer cancel()
 
 	if err != nil {
-		log.Panic(err)
-		return
+		fmt.Println("error : ", err)
+		return err
 	}
 
-	return
+	return nil
 }

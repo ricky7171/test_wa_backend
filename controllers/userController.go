@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 	db "wa/database"
@@ -72,7 +71,7 @@ func Register() gin.HandlerFunc {
 		count, err := db.UserCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
 		defer cancel() //defer cancel() used to clean go routine memory after this function is done
 		if err != nil {
-			log.Panic(err)
+			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
 			return
 		}
@@ -231,7 +230,8 @@ func GetChat() gin.HandlerFunc {
 		var chats []models.Chat
 		if err = cursor.All(ctx, &chats); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid data from DB"})
-			log.Fatal(err)
+			fmt.Println(err)
+			return
 		}
 
 		//5. send response to client

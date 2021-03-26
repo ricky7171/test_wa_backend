@@ -3,7 +3,7 @@ package hub
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"time"
 	db "wa/database"
 	"wa/models"
@@ -98,7 +98,7 @@ func SaveChat(msg models.Message) error {
 		defer cancel()
 
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 			return nil
 		}
 
@@ -116,7 +116,7 @@ func SaveChat(msg models.Message) error {
 	defer cancel()
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	defer cancel()
 
