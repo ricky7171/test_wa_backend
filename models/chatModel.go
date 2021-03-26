@@ -8,8 +8,8 @@ import (
 
 type Chat struct {
 	ID        primitive.ObjectID `bson:"_id"`
-	ContactId primitive.ObjectID `json:"contactId" bson:"contactId"`
-	SenderId  primitive.ObjectID `json:"senderId" bson:"senderId"`
+	ContactId primitive.ObjectID `json:"contact_id" bson:"contactId"`
+	SenderId  primitive.ObjectID `json:"sender_id" bson:"senderId"`
 	Message   string             `json:"message" bson:"message"`
-	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
+	CreatedAt time.Time          `json:"created_at" bson:"createdAt"`
 }
