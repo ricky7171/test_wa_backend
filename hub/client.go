@@ -13,15 +13,7 @@ import (
 
 const (
 	// Time allowed to write a message to the peer.
-	//timeout saat ngirim data
 	writeWait = 10 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
-
-	// Send pings to peer with this period. Must be less than pongWait.
-	// nilai pingPeriod ini adalah 54 detik
-	pingPeriod = (pongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
@@ -51,35 +43,27 @@ func (s subscription) readPump() {
 		c.ws.Close()
 	}()
 	c.ws.SetReadLimit(maxMessageSize)
-	err := c.ws.SetReadDeadline(time.Now().Add(pongWait))
-	if err != nil {
-		fmt.Println("Error when SetReadDeadline ws")
-		return
-	} else {
-		c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-		for {
-			_, msg, err := c.ws.ReadMessage() //waiting message from websocket
-			if err != nil {
-				c.write(websocket.CloseMessage, []byte{})
-				fmt.Println("[close] ", err)
-				break
-			}
 
-			//convert plain message data to formated message struct
-			//example messageMap :
-			//{"data":"Hi","from_user_id":"605ae53dce933ec8b23f9cc1","to_user_id":"605ae3f2ce933ec8b23f9cbd","contact_id":"605ae6dcdbadf9c66aa4fe60"}
-			var message models.Message
-
-			if err := json.Unmarshal(msg, &message); err != nil {
-				fmt.Println("Cannot unmarshall message : ", msg)
-				break
-			}
-
-			MainHub.Broadcast <- message
-
+	for {
+		_, msg, err := c.ws.ReadMessage() //waiting message from websocket
+		if err != nil {
+			fmt.Println("[close] ", err)
+			break
 		}
 
+		//convert plain message data to formated message struct
+		//example messageMap :
+		//{"data":"Hi","from_user_id":"605ae53dce933ec8b23f9cc1","to_user_id":"605ae3f2ce933ec8b23f9cbd","contact_id":"605ae6dcdbadf9c66aa4fe60"}
+		var message models.Message
+
+		if err := json.Unmarshal(msg, &message); err != nil {
+			fmt.Println("Cannot unmarshall message : ", msg)
+			break
+		}
+		MainHub.Broadcast <- message
 	}
+
+	c.write(websocket.CloseMessage, []byte{})
 
 }
 
@@ -95,29 +79,20 @@ func (c *connection) write(mt int, payload []byte) error {
 // writePump pumps messages from the hub to the websocket connection.
 func (s *subscription) writePump() {
 	c := s.conn
-	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		ticker.Stop()
 		c.ws.Close()
 	}()
 	for {
-		select {
-		case messageInByte, ok := <-c.send: //if there is message goes to channel send in certain connection, then send that message to websocket
-			if !ok {
-				c.write(websocket.CloseMessage, []byte{}) //write to ws indicate that connection was closed
-				return
-			}
-			err := c.write(websocket.TextMessage, messageInByte) //write to ws with message : messageInByte
-			if err != nil {
-				return
-			}
-
-		case <-ticker.C:
-			err := c.write(websocket.PingMessage, []byte{})
-			if err != nil {
-				return
-			}
+		messageInByte, ok := <-c.send //block until there is message from channel "send" in certain connection, then send that message to websocket
+		if !ok {
+			c.write(websocket.CloseMessage, []byte{}) //write to ws indicate that connection was closed
+			return
 		}
+		err := c.write(websocket.TextMessage, messageInByte) //write to ws with message : messageInByte
+		if err != nil {
+			return
+		}
+
 	}
 
 }
@@ -125,12 +100,12 @@ func (s *subscription) writePump() {
 // serveWs handles websocket requests from the peer.
 func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 	//1. upgrade protocol from http to websocket
-	//then, save the connection to variable ws
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+
 	//2. just make connection instance and save to variable c
 	c := &connection{send: make(chan []byte, 256), ws: ws}
 
@@ -139,6 +114,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request, userID string) {
 
 	//4. register this subscription to hub
 	MainHub.Register <- s
+
 	//5. run this function on background
 	go s.writePump()
 	go s.readPump()
