@@ -292,7 +292,7 @@ func GetContact() gin.HandlerFunc {
 
 		defer cancel()
 		//4. store all result in allContacts
-		var allContacts []models.ContactWithName
+		var allContacts []bson.M
 		if cursor == nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found"})
 			fmt.Println("error : ", err)
