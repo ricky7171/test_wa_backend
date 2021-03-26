@@ -309,12 +309,12 @@
                             //nanti yang direturn dari API kira-kira seperti ini : [{A,B},{C,A},{D,A}]
                             //kita harus cari nama teman kita dulu
                             var tempFriend;
-                            if(data[i]['usersInfo'][0]['_id'] == access['_id']) {
+                            if(data[i]['users_info'][0]['_id'] == access['_id']) {
                                 //jika data pertama adalah data diri kita sendiri, maka data teman kita pasti ada di data kedua
-                                tempFriend = data[i]['usersInfo'][1];
+                                tempFriend = data[i]['users_info'][1];
                             } else {
                                 //kalau data pertama bukan data diri kita sendiri, berarti ya itu data teman kita
-                                tempFriend = data[i]['usersInfo'][0];
+                                tempFriend = data[i]['users_info'][0];
                             }
                             var name = tempFriend['name'];
                             var contact_id = data[i]['_id'];
@@ -374,7 +374,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var temp = data[i];
                             
-                            if (temp['senderId'] == access['_id']) {
+                            if (temp['sender_id'] == access['_id']) {
                                 addMessage(true, true,"Me",temp['message'], scrollToBottom);
                             } else {
                                 addMessage(true, false,name,temp['message'], scrollToBottom);
@@ -425,7 +425,7 @@
                 };
                 $.ajax({
                     type: "POST",
-                    url: "api/new_chat",
+                    url: "api/new-chat",
                     data: JSON.stringify(body),
                     contentType: "application/json; charset=utf-8",
                     accepts: "application/json; charset=utf-8",
@@ -460,19 +460,19 @@
                         var plainMessage = messages[i];
                         var formattedMessage = JSON.parse(plainMessage);
                         //this means, when incoming message is an acknowledge that current user message was sent to receiver, then..
-                        if(formattedMessage['fromUserId'] == access['_id']) {
+                        if(formattedMessage['from_user_id'] == access['_id']) {
                             //if current user is opening that chat log according to this message
-                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["toUserId"]) {
+                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["to_user_id"]) {
                                 addMessage(false, true,"Me",formattedMessage['data']);
                             } else {
-                                notifyNewMessage(formattedMessage['fromUserId'], false); //without bg change
+                                notifyNewMessage(formattedMessage['from_user_id'], false); //without bg change
                             }
                         } else { //this means, when incoming message is from other people send message to current user
                             //if current user is opening that chat log according to this message
-                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["fromUserId"]) {
+                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["from_user_id"]) {
                                 addMessage(false, false,$("#send_chat_button").attr("to_user_name"),formattedMessage['data']);
                             } else { //if current user is NOT opening that chat log according to this message
-                                notifyNewMessage(formattedMessage['fromUserId']);
+                                notifyNewMessage(formattedMessage['from_user_id']);
                             }
                         }
 
@@ -494,7 +494,7 @@
                     return false;
                 }
                 
-                // format : {"data" : "bla bla bla" in byte, "fromUserId" : 1, "toUserId" : 2}
+                // format : {"data" : "bla bla bla" in byte, "from_user_id" : 1, "to_user_id" : 2, "contact_id" : 1}
                 var value = $("#msg").val();
                 if(value == null) {
                     return false;
@@ -502,9 +502,9 @@
 
                 var sendData = {
                     "data": value,
-                    "fromUserId" : access['_id'],
-                    "toUserId" : $("#send_chat_button").attr("to_user_id"),
-                    "contactId" : $("#send_chat_button").attr("contact_id")
+                    "from_user_id" : access['_id'],
+                    "to_user_id" : $("#send_chat_button").attr("to_user_id"),
+                    "contact_id" : $("#send_chat_button").attr("contact_id")
                 };
                 conn.send(JSON.stringify(sendData));
                 $("#msg").val("");
