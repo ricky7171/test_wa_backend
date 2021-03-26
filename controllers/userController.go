@@ -22,13 +22,10 @@ import (
 var validate = validator.New()
 
 //HashPassword is used to encrypt the password before it is stored in the DB
-func HashPassword(password string) string {
+func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 8)
-	if err != nil {
-		log.Panic(err)
-	}
 
-	return string(bytes)
+	return string(bytes), err
 }
 
 //VerifyPassword checks the input password while verifying it with the passward in the DB.
@@ -85,7 +82,12 @@ func Register() gin.HandlerFunc {
 		}
 
 		//6. hash user password
-		password := HashPassword(user.Password)
+		password, err := HashPassword(user.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data format is invalid"})
+			fmt.Println("error : ", err)
+			return
+		}
 		user.Password = password
 
 		//7. fill attribute : createdAt, updatedAt, id, token, and refreshToken
@@ -226,13 +228,14 @@ func GetChat() gin.HandlerFunc {
 			return
 		}
 
-		var result []bson.M
-		if err = cursor.All(ctx, &result); err != nil {
+		var chats []models.Chat
+		if err = cursor.All(ctx, &chats); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid data from DB"})
 			log.Fatal(err)
 		}
 
 		//5. send response to client
-		c.JSON(http.StatusOK, result)
+		c.JSON(http.StatusOK, chats)
 
 	}
 }
@@ -272,15 +275,15 @@ func GetContact() gin.HandlerFunc {
 							"from":         "users",
 							"localField":   "users",
 							"foreignField": "_id",
-							"as":           "usersInfo",
+							"as":           "users_info",
 						},
 					},
 				},
 				bson.D{
 					{
 						"$project", bson.M{
-							"usersInfo._id":  1,
-							"usersInfo.name": 1,
+							"users_info._id":  1,
+							"users_info.name": 1,
 						},
 					},
 				},
@@ -288,14 +291,20 @@ func GetContact() gin.HandlerFunc {
 		)
 
 		defer cancel()
-
 		//4. store all result in allContacts
-		var allContacts []bson.M
-		if err = cursor.All(ctx, &allContacts); err != nil {
-			log.Fatal(err)
+		var allContacts []models.ContactWithName
+		if cursor == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found"})
+			fmt.Println("error : ", err)
+			return
 		}
-
+		if err = cursor.All(ctx, &allContacts); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data format is invalid"})
+			fmt.Println("error : ", err)
+			return
+		}
 		//5. send response to client
+
 		c.JSON(http.StatusOK, allContacts)
 
 	}
@@ -352,5 +361,32 @@ func NewMessage() gin.HandlerFunc {
 			"success": true,
 		})
 
+	}
+}
+
+//token refresh
+//used to refresh access token that has been expired
+func TokenRefresh() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//1. make ctx with timeout 100 second
+		//var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		//defer cancel()
+
+		//2. get token from body
+		var request map[string]interface{}
+
+		//3. read request from client and store to "request" variable
+		if err := c.BindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		//4. check if token is present
+		if request["token"] == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Token is not present"})
+			return
+		}
+
+		//5.
 	}
 }
