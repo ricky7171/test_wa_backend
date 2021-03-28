@@ -2,9 +2,10 @@ package main
 
 import (
 	"os"
-	"wa/hub"
-	"wa/middleware"
-	routes "wa/routes"
+
+	"github.com/ricky7171/test_wa_backend/internal/hub"
+	"github.com/ricky7171/test_wa_backend/internal/middleware"
+	routes "github.com/ricky7171/test_wa_backend/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +30,7 @@ func main() {
 	router := gin.New()
 
 	//load all html
-	router.LoadHTMLGlob("views/*")
+	router.LoadHTMLGlob("web/*")
 
 	// Middleware that used to log all request on terminal
 	//router.Use(gin.Logger())
