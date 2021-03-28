@@ -1,18 +1,12 @@
 package helper
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/ricky7171/test_wa_backend/internal/database"
-
 	jwt "github.com/dgrijalva/jwt-go"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // SignedTokenDetails is representation of JWT Token payload
@@ -28,8 +22,6 @@ type SignedRefreshTokenDetails struct {
 	ID string
 	jwt.StandardClaims
 }
-
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "users")
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
@@ -131,55 +123,4 @@ func ValidateRefreshToken(signedToken string) (claims *SignedRefreshTokenDetails
 	}
 
 	return claims, msg
-}
-
-//UpdateAllTokens renews the user tokens when they login
-func UpdateAllTokens(signedToken string, signedRefreshToken string, userId primitive.ObjectID) error {
-	//1. buat context dengan timeout 100 detik
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	//2. buat object BSON
-	var updateObj primitive.D
-
-	//3. isi object BSON :
-	//{"token" : signedToken (DIAMBIL DARI PARAMETER), "refreshToken" : signedRefreshToken (DIAMBIL DARI PARAMETER), "updatedAt" : (TIMENOW)}
-	updateObj = append(updateObj, bson.E{"token", signedToken})
-	updateObj = append(updateObj, bson.E{"refreshToken", signedRefreshToken})
-
-	UpdatedAt, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-	updateObj = append(updateObj, bson.E{"updatedAt", UpdatedAt})
-
-	//4. bkin variabel upsert dimana ini digunakan sebagai penanda, bahwa
-	//kalau datanya tidak ada maka insert data tersebut (sama persis kek upsertnya di laravel)
-	upsert := true
-
-	//5. buat object bson bernama filter lalu isi :
-	//{"_id" : userId (DIAMBIL DARI PARAMETER)}
-	filter := bson.M{"_id": userId}
-
-	//6. buat object opt tipenya updateOptions dimana ini merepresentasikan option pada saat ngeupdate
-	//apa optionnya ? ya upsert = &upsert yaitu upsert = true,
-	//jadi tar kalau ngeupdate, kalau misal datanya gak ada, ya insert aja
-	opt := options.UpdateOptions{
-		Upsert: &upsert,
-	}
-
-	//7. update user dengan id userId (diambil dari parameter) dengan data updateObj
-	_, err := userCollection.UpdateOne(
-		ctx,
-		filter,
-		bson.D{
-			{"$set", updateObj},
-		},
-		&opt,
-	)
-	defer cancel()
-
-	if err != nil {
-		fmt.Println("error : ", err)
-		return err
-	}
-
-	return nil
 }
