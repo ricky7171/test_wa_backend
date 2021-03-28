@@ -3,9 +3,11 @@ package main
 import (
 	"os"
 
+	db "github.com/ricky7171/test_wa_backend/internal/database"
 	"github.com/ricky7171/test_wa_backend/internal/hub"
 	"github.com/ricky7171/test_wa_backend/internal/middleware"
 	routes "github.com/ricky7171/test_wa_backend/internal/routes"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,8 +25,11 @@ type RegisterRequest struct {
 
 func main() {
 
+	//init database
+	var dbInstance *mongo.Database = db.DBinstance()
+
 	//run hub to listen data chat websocket on channel
-	go hub.MainHub.Run()
+	go hub.MainHub.Run(dbInstance)
 
 	//make router instance
 	router := gin.New()
@@ -46,12 +51,12 @@ func main() {
 	authorized.Use(middleware.Authentication())
 	{
 		//- chat router
-		routes.ChatRoutes(authorized)
+		routes.ChatRoutes(authorized, dbInstance)
 	}
 
 	//unauthorized router
 	//- auth router
-	routes.AuthRoutes(router)
+	routes.AuthRoutes(router, dbInstance)
 
 	//run server
 	var port string

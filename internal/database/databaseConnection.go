@@ -13,7 +13,7 @@ import (
 )
 
 //DBinstance func
-func DBinstance() *mongo.Client {
+func DBinstance() *mongo.Database {
 
 	//init .env
 	err := godotenv.Load()
@@ -39,11 +39,10 @@ func DBinstance() *mongo.Client {
 	}
 	fmt.Println("Connected to MongoDB!")
 
-	return client
-}
+	dbInstance := client.Database(os.Getenv("DATABASE_NAME"))
 
-//Client Database instance
-var Client *mongo.Client = DBinstance()
+	return dbInstance
+}
 
 //OpenCollection is a  function makes a connection with a collection in the database
 func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
@@ -53,6 +52,6 @@ func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collecti
 	return collection
 }
 
-var UserCollection *mongo.Collection = OpenCollection(Client, "users")
-var ContactCollection *mongo.Collection = OpenCollection(Client, "contacts")
-var ChatCollection *mongo.Collection = OpenCollection(Client, "chats")
+//var UserCollection *mongo.Collection = OpenCollection(Client, "users")
+//var ContactCollection *mongo.Collection = OpenCollection(Client, "contacts")
+//var ChatCollection *mongo.Collection = OpenCollection(Client, "chats")

@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/ricky7171/test_wa_backend/internal/database"
-
 	"github.com/ricky7171/test_wa_backend/internal/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 //subscription example
@@ -45,7 +44,7 @@ var MainHub = Hub{
 	Users:      make(map[string]*connection),
 }
 
-func SaveChat(msg models.Message) error {
+func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
 	//1. make ctx object
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -61,7 +60,7 @@ func SaveChat(msg models.Message) error {
 	makeNewContact := false //=> means, no need to make new contact
 	if msg.ContactId == "" {
 		var contactExists models.Contact
-		err := db.ContactCollection.FindOne(
+		err := dbInstance.Collection("contacts").FindOne(
 			ctx,
 			bson.M{
 				"users": bson.M{
@@ -96,7 +95,7 @@ func SaveChat(msg models.Message) error {
 			newToUserIdObject,
 		}
 
-		_, err := db.ContactCollection.InsertOne(ctx, contact)
+		_, err := dbInstance.Collection("contacts").InsertOne(ctx, contact)
 		defer cancel()
 
 		if err != nil {
@@ -114,7 +113,7 @@ func SaveChat(msg models.Message) error {
 	chat.Message = msg.Data
 	chat.SenderId, _ = primitive.ObjectIDFromHex(msg.FromUserId)
 
-	_, err = db.ChatCollection.InsertOne(ctx, chat)
+	_, err = dbInstance.Collection("chats").InsertOne(ctx, chat)
 	defer cancel()
 
 	if err != nil {
@@ -126,7 +125,7 @@ func SaveChat(msg models.Message) error {
 
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Run(dbInstance *mongo.Database) {
 	for {
 		select {
 		case s := <-h.Register: //when there is user connect to ws
@@ -139,7 +138,7 @@ func (h *Hub) Run() {
 		case m := <-h.Broadcast: //when there is message
 
 			//1. store to database
-			SaveChat(m)
+			SaveChat(m, dbInstance)
 
 			//2. convert object m ke byte[]
 			dataSend, err := json.Marshal(m)

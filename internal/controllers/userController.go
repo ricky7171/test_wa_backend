@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	db "github.com/ricky7171/test_wa_backend/internal/database"
 	helper "github.com/ricky7171/test_wa_backend/internal/helpers"
 	"github.com/ricky7171/test_wa_backend/internal/hub"
 	"github.com/ricky7171/test_wa_backend/internal/models"
@@ -45,7 +44,7 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
-func Register() gin.HandlerFunc {
+func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. make ctx with timeout 100 second
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -69,7 +68,7 @@ func Register() gin.HandlerFunc {
 		}
 
 		//5. check wether phone is already in the database or not
-		count, err := db.UserCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
+		count, err := dbInstance.Collection("users").CountDocuments(ctx, bson.M{"phone": user.Phone})
 		defer cancel() //defer cancel() used to clean go routine memory after this function is done
 		if err != nil {
 			fmt.Println(err)
@@ -96,7 +95,7 @@ func Register() gin.HandlerFunc {
 		user.ID = primitive.NewObjectID()
 
 		//8. insert user to database
-		resultInsert, insertErr := db.UserCollection.InsertOne(ctx, user)
+		resultInsert, insertErr := dbInstance.Collection("users").InsertOne(ctx, user)
 		defer cancel()
 		if insertErr != nil {
 			msg := fmt.Sprintf("User item was not created")
@@ -110,7 +109,7 @@ func Register() gin.HandlerFunc {
 	}
 }
 
-func Login() gin.HandlerFunc {
+func Login(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. make ctx with timeout 100 second
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -129,7 +128,7 @@ func Login() gin.HandlerFunc {
 		}
 
 		//4. search user that have client request phone number, then save that user to "founduser" variable
-		err := db.UserCollection.FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
+		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "login or passowrd is incorrect"})
@@ -166,6 +165,7 @@ func Login() gin.HandlerFunc {
 }
 
 func ConnectWs() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
 		userID := c.Param("userId")
 		hub.ServeWs(c.Writer, c.Request, userID)
@@ -173,7 +173,7 @@ func ConnectWs() gin.HandlerFunc {
 }
 
 //get all chat with specific contact
-func GetChat() gin.HandlerFunc {
+func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. get param contactId & lastId
 
@@ -199,7 +199,7 @@ func GetChat() gin.HandlerFunc {
 
 		if lastID == "nil" { //means this client request first page
 
-			cursor, err = db.ChatCollection.Aggregate(
+			cursor, err = dbInstance.Collection("chats").Aggregate(
 				ctx,
 				mongo.Pipeline{
 					matchContactIDPipeline,
@@ -210,7 +210,7 @@ func GetChat() gin.HandlerFunc {
 			)
 		} else { //means this client request NOT the first page
 
-			cursor, err = db.ChatCollection.Aggregate(
+			cursor, err = dbInstance.Collection("chats").Aggregate(
 				ctx,
 				mongo.Pipeline{
 					matchContactIDPipeline,
@@ -243,7 +243,7 @@ func GetChat() gin.HandlerFunc {
 
 //get contact
 //contact is peoples who have interacted before with specific user id
-func GetContact() gin.HandlerFunc {
+func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		//1. get param userId and make objectID from that
@@ -258,7 +258,7 @@ func GetContact() gin.HandlerFunc {
 		defer cancel()
 
 		//3. get all data chat WHERE it contains userId
-		cursor, err := db.ContactCollection.Aggregate(
+		cursor, err := dbInstance.Collection("contacts").Aggregate(
 			ctx,
 			mongo.Pipeline{
 				bson.D{
@@ -312,7 +312,7 @@ func GetContact() gin.HandlerFunc {
 }
 
 //send new message to other user
-func NewMessage() gin.HandlerFunc {
+func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		//1. make ctx with timeout 100 second
@@ -337,7 +337,7 @@ func NewMessage() gin.HandlerFunc {
 			var user models.User
 
 			//5.b. get user data according that phone number
-			err := db.UserCollection.FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&user)
+			err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&user)
 			defer cancel()
 
 			if err != nil {
@@ -367,7 +367,7 @@ func NewMessage() gin.HandlerFunc {
 
 //token refresh
 //used to refresh access token that has been expired
-func RefreshToken() gin.HandlerFunc {
+func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. make ctx with timeout 100 second
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -400,7 +400,7 @@ func RefreshToken() gin.HandlerFunc {
 		//6. get user with ID that get from claims
 		var user models.User
 		userID, _ := primitive.ObjectIDFromHex(claims.ID)
-		err := db.UserCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
+		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
