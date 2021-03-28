@@ -90,8 +90,8 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 		user.Password = password
 
 		//7. fill attribute : createdAt, updatedAt, id, token, and refreshToken
-		user.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-		user.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.CreatedAt = time.Now()
+		user.UpdatedAt = time.Now()
 		user.ID = primitive.NewObjectID()
 
 		//8. insert user to database
@@ -176,7 +176,6 @@ func ConnectWs() gin.HandlerFunc {
 func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//1. get param contactId & lastId
-
 		contactID := c.Param("contactId")
 		contactObjectID, err := primitive.ObjectIDFromHex(contactID)
 		lastID := c.Param("lastId")
@@ -193,7 +192,7 @@ func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 		sortPipeline := bson.D{{"$sort", bson.D{{"_id", -1}}}}
 		paginatePipeline := bson.D{{"$match", bson.D{{"_id", bson.D{{"$lt", lastObjectID}}}}}}
 		limitPipeline := bson.D{{"$limit", 20}}
-		groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contactId", 1}, {"senderId", 1}, {"message", 1}}}}
+		groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contactId", 1}, {"senderId", 1}, {"message", 1}, {"createdAt", 1}}}}
 
 		var cursor *mongo.Cursor
 

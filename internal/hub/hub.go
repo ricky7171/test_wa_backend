@@ -50,7 +50,7 @@ func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
 	defer cancel()
 
 	//2. fill createdAt
-	msg.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	msg.CreatedAt = time.Now()
 
 	//3. if contactId not found in msg object, then find contact first
 	//if contact not found, then make new contact
@@ -88,7 +88,7 @@ func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
 		newContactId := primitive.NewObjectID()
 
 		var contact models.Contact
-		contact.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		contact.CreatedAt = time.Now()
 		contact.ID = newContactId
 		contact.Users = []primitive.ObjectID{
 			newFromUserIdObject,
@@ -108,7 +108,7 @@ func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
 	}
 
 	//6. insert new chat
-	chat.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	chat.CreatedAt = time.Now()
 	chat.ID = primitive.NewObjectID()
 	chat.Message = msg.Data
 	chat.SenderId, _ = primitive.ObjectIDFromHex(msg.FromUserId)
