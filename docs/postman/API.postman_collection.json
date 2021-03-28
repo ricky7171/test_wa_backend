@@ -26,14 +26,13 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phone\" : \"085727322755\",\r\n    \"password\" : \"welcome3\"\r\n}"
+							"raw": "{\r\n    \"phone\" : \"08000000000\",\r\n    \"password\" : \"welcome3\"\r\n}"
 						},
 						"url": {
-							"raw": "localhost:8080/api/auth/login",
+							"raw": "{{heroku}}/api/auth/login",
 							"host": [
-								"localhost"
+								"{{heroku}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"auth",
@@ -61,18 +60,45 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phone\" : \"08333333333\",\r\n    \"name\" : \"Intan Paramitha\",\r\n    \"password\" : \"welcome3\"\r\n}"
+							"raw": "{\r\n    \"phone\" : \"08102538229\",\r\n    \"name\" : \"Yoga Paramitha\",\r\n    \"password\" : \"welcome3\"\r\n}"
 						},
 						"url": {
-							"raw": "localhost:8080/api/auth/register",
+							"raw": "{{local}}/api/auth/register",
 							"host": [
-								"localhost"
+								"{{local}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"auth",
 								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refresh_token\" : \"blabla\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local}}/api/auth/refresh-token",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh-token"
 							]
 						}
 					},
@@ -91,7 +117,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1MiIsIlVpZCI6IjYwNTNiZjYxNTU5ODU0Y2NhY2QyY2IyYyIsImV4cCI6MTYxNjE4NzYzNn0.AZ7JxoWhNxT6YCmDr7uz53bDvlgjPuW45Z-3O6ua-nA",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoieW9nYSIsIlBob25lIjoiMDgwMDAwMDAwMDAiLCJVaWQiOiI2MDU5YTY5ZDBkYThkZjQwNmU2NGZiNDkiLCJleHAiOjE2MTY2NDMyOTR9.Apye5Gdce2CbBdYdWeHB6Gw5x6OrOUp_P9MGHzr4V74",
 									"type": "string"
 								}
 							]
@@ -116,15 +142,14 @@
 							}
 						],
 						"url": {
-							"raw": "localhost:8080/api/chat/6053d441f0b16373c887e18c/nil",
+							"raw": "{{heroku}}/api/chat/6059a6bf0da8df406e64fb4a/nil",
 							"host": [
-								"localhost"
+								"{{heroku}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"chat",
-								"6053d441f0b16373c887e18c",
+								"6059a6bf0da8df406e64fb4a",
 								"nil"
 							]
 						}
@@ -139,7 +164,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNTMzMjA3MjlkOGM0ZDk1ZGUyNjlmNiIsImV4cCI6MTYxNjE5Njg0OH0.Wf46n6kDLsteWEj0HiRH-AvbAMDbUHSF_iGgz21uci8",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoieW9nYSIsIlBob25lIjoiMDgwMDAwMDAwMDAiLCJVaWQiOiI2MDU5YTY5ZDBkYThkZjQwNmU2NGZiNDkiLCJleHAiOjE2MTY2NDMyOTR9.Apye5Gdce2CbBdYdWeHB6Gw5x6OrOUp_P9MGHzr4V74",
 									"type": "string"
 								}
 							]
@@ -158,11 +183,10 @@
 							}
 						],
 						"url": {
-							"raw": "localhost:8080/api/contact",
+							"raw": "{{heroku}}/api/contact",
 							"host": [
-								"localhost"
+								"{{heroku}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"contact"
@@ -179,7 +203,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1MiIsIlVpZCI6IjYwNTNiZjYxNTU5ODU0Y2NhY2QyY2IyYyIsImV4cCI6MTYxNjE4NzYzNn0.AZ7JxoWhNxT6YCmDr7uz53bDvlgjPuW45Z-3O6ua-nA",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoieW9nYSIsIlBob25lIjoiMDgwMDAwMDAwMDAiLCJVaWQiOiI2MDU5YTY5ZDBkYThkZjQwNmU2NGZiNDkiLCJleHAiOjE2MTY2NDMyOTR9.Apye5Gdce2CbBdYdWeHB6Gw5x6OrOUp_P9MGHzr4V74",
 									"type": "string"
 								}
 							]
@@ -188,7 +212,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"phone\": \"08333333333\", \"message\": \"JAWAB WOI !\"}",
+							"raw": "{\"phone\": \"085727322755\", \"message\": \"RIK !\"}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -196,11 +220,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/new_chat",
+							"raw": "{{heroku}}/api/new_chat",
 							"host": [
-								"localhost"
+								"{{heroku}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"new_chat"
