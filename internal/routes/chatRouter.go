@@ -1,7 +1,7 @@
 package routes
 
 import (
-	controller "wa/controllers"
+	controller "github.com/ricky7171/test_wa_backend/internal/controllers"
 
 	"github.com/gin-gonic/gin"
 )

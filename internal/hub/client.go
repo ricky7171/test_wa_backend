@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
-	"wa/models"
+
+	"github.com/ricky7171/test_wa_backend/internal/models"
 
 	"github.com/gorilla/websocket"
 )

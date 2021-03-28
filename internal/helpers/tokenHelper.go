@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"wa/database"
+	"github.com/ricky7171/test_wa_backend/internal/database"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson"

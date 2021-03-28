@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	db "wa/database"
-	"wa/models"
+
+	db "github.com/ricky7171/test_wa_backend/internal/database"
+
+	"github.com/ricky7171/test_wa_backend/internal/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	helper "wa/helpers"
+	helper "github.com/ricky7171/test_wa_backend/internal/helpers"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	db "wa/database"
-	helper "wa/helpers"
-	"wa/hub"
-	"wa/models"
+
+	db "github.com/ricky7171/test_wa_backend/internal/database"
+	helper "github.com/ricky7171/test_wa_backend/internal/helpers"
+	"github.com/ricky7171/test_wa_backend/internal/hub"
+	"github.com/ricky7171/test_wa_backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
