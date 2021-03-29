@@ -7,20 +7,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //DBinstance func
 func DBinstance() *mongo.Database {
-
-	//init .env
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
 	MongoDb := os.Getenv("MONGODB_URL")
 
@@ -51,7 +43,3 @@ func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collecti
 
 	return collection
 }
-
-//var UserCollection *mongo.Collection = OpenCollection(Client, "users")
-//var ContactCollection *mongo.Collection = OpenCollection(Client, "contacts")
-//var ChatCollection *mongo.Collection = OpenCollection(Client, "chats")
