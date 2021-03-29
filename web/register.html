@@ -68,6 +68,10 @@
             accepts: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, textStatus) {
+                if(data == null || data["status"] == "error" || data["status"] == "failed" || data["data"] == null) {
+                    alert("wrong phone number or password or name");
+                    return null;
+                }
                 $(location).attr('href', '/login');
             },
             error: function(data, textStatus) {

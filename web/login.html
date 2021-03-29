@@ -66,6 +66,11 @@
             accepts: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, textStatus) {
+                if(data == null || data["status"] == "error" || data["status"] == "failed" || data["data"] == null) {
+                    alert("wrong phone number or password");
+                    return null;
+                }
+                data = data["data"];
                 dataString = JSON.stringify(data);
                 localStorage.setItem("access", dataString)
                 $(location).attr('href', '/home');

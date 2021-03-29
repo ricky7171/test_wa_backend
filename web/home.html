@@ -300,10 +300,11 @@
                     },
                     dataType: "json",
                     success: function (data, textStatus) {
-                        if(data == null) {
+                        if(data == null || data["status"] == "error" || data["status"] == "failed" || data["data"] == null) {
                             return null;
                         } 
                         $("#contacts").empty();
+                        data = data["data"];
                         for (var i = 0; i < data.length; i++) {
                             //yang di return dari API itu selalu ada 2 user. Misal user kita adalah A, dan user teman kita adalah B,C,D.
                             //nanti yang direturn dari API kira-kira seperti ini : [{A,B},{C,A},{D,A}]
@@ -342,12 +343,12 @@
                     },
                     dataType: "json",
                     success: function (data, textStatus) {
-                        
-                        if(data == null) {
+                        if(data == null || data["status"] == "error" || data["status"] == "failed" || data["data"] == null) {
                             removeLoadMoreButton();
-                            lastChatId = "nil"
+                            lastChatId = "nil";
                             return null;
-                        }
+                        } 
+                        data = data["data"];
 
                         var scrollToBottom = true;
 
@@ -434,7 +435,14 @@
                     },
                     dataType: "json",
                     success: function (data, textStatus) {
+                        if(data == null || data["status"] == "error" || data["status"] == "failed" || data["data"] == null) {
+                            alert("failed to send new message");
+                            return null;
+                        } 
+                        
                         $(".bg_popup").hide();
+                        
+                        
                     },
                     error: function(data, textStatus) {
                         alert("failed to send new message");
