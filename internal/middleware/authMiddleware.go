@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,14 +21,14 @@ func Authentication() gin.HandlerFunc {
 		} else if c.Query("access_token") != "" {
 			plainToken = "Bearer " + c.Query("access_token")
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not authorized !"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Not authorized !"))
 			c.Abort()
 			return
 		}
 
-		//2. cek, kalau tokennya kosong, berarti return "no authorization header provided"
+		//2. cek, kalau tokennya kosong, berarti return "no authorization header provided" sampe sini
 		if plainToken == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Not authorized !"))
 			c.Abort()
 			return
 		}
@@ -41,7 +40,7 @@ func Authentication() gin.HandlerFunc {
 		//4. ubah token jadi tipe signedDetails
 		claims, err := helper.ValidateToken(reqToken)
 		if err != "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", err))
 			c.Abort()
 
 			return

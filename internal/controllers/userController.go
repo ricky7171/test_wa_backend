@@ -55,7 +55,8 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		//3. read JSON request then store to "user" variable (model)
 		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
 			return
 		}
 
@@ -63,7 +64,8 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 		validationErr := validate.Struct(user)
 
 		if validationErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", validationErr.Error()))
+			c.Abort()
 			return
 		}
 
@@ -71,20 +73,21 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 		count, err := dbInstance.Collection("users").CountDocuments(ctx, bson.M{"phone": user.Phone})
 		defer cancel() //defer cancel() used to clean go routine memory after this function is done
 		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "error occured while checking for the phone"))
+			c.Abort()
 			return
 		}
 		if count > 0 {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "this phone already exists"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "this phone already exists"))
+			c.Abort()
 			return
 		}
 
 		//6. hash user password
 		password, err := HashPassword(user.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data format is invalid"})
-			fmt.Println("error : ", err)
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "failed to hash password"))
+			c.Abort()
 			return
 		}
 		user.Password = password
@@ -98,13 +101,13 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 		resultInsert, insertErr := dbInstance.Collection("users").InsertOne(ctx, user)
 		defer cancel()
 		if insertErr != nil {
-			msg := fmt.Sprintf("User item was not created")
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "User item was not created"))
+			c.Abort()
 			return
 		}
 
 		//9. send response to client
-		c.JSON(http.StatusOK, resultInsert)
+		c.JSON(http.StatusOK, helper.FormatResponse("success", resultInsert))
 
 	}
 }
@@ -123,43 +126,55 @@ func Login(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		//3. read request and store to "user" variable
 		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
 			return
 		}
 
-		//4. search user that have client request phone number, then save that user to "founduser" variable
+		//4. validate request
+		validationErr := validate.StructPartial(user, "Phone", "Password")
+
+		if validationErr != nil {
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", validationErr.Error()))
+			c.Abort()
+			return
+		}
+
+		//5. search user that have client request phone number, then save that user to "founduser" variable
 		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
 		defer cancel()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "login or passowrd is incorrect"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "login or password is incorrect"))
+			c.Abort()
 			return
 		}
 
-		//5. check userfound password with client request password
+		//6. check userfound password with client request password
 		//user.Password is password plain
 		//foundUser.Password is hashed password
 		//if wrong, return error : login or passowrd is incorrect
 		//this process will take long time (about 1 second), because bcrypt is complex
 		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
-		if passwordIsValid != true {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		if !passwordIsValid {
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", msg))
+			c.Abort()
 			return
 		}
 
-		//6. generate token.
+		//7. generate token.
 		//generate token from name, phone, and user id
 		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Name, foundUser.Phone, foundUser.ID)
 
-		//7. update user with new token and new refresToken
+		//8. update user with new token and new refresToken
 		foundUser.Token = token
 		foundUser.RefreshToken = refreshToken
 
-		//8. remove password attribute, because it will send to client
+		//9. remove password attribute, because it will send to client
 		foundUser.Password = ""
 
-		//9. send response to client
-		c.JSON(http.StatusOK, foundUser)
+		//10. send response to client
+		c.JSON(http.StatusOK, helper.FormatResponse("success", foundUser))
 
 	}
 }
@@ -223,19 +238,20 @@ func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		defer cancel()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", err))
+			c.Abort()
 			return
 		}
 
 		var chats []models.Chat
 		if err = cursor.All(ctx, &chats); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid data from DB"})
-			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Invalid data format from DB"))
+			c.Abort()
 			return
 		}
 
 		//5. send response to client
-		c.JSON(http.StatusOK, chats)
+		c.JSON(http.StatusOK, helper.FormatResponse("success", chats))
 
 	}
 }
@@ -249,7 +265,9 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 		userID := c.GetString("userId")
 		userObjetID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error convert from string to objectID"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Error convert from string to objectID"))
+			c.Abort()
+			return
 		}
 
 		//2. make context
@@ -291,21 +309,17 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 		)
 
 		defer cancel()
-		//4. store all result in allContacts
-		var allContacts []bson.M
-		if cursor == nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found"})
-			fmt.Println("error : ", err)
-			return
-		}
-		if err = cursor.All(ctx, &allContacts); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Data format is invalid"})
-			fmt.Println("error : ", err)
-			return
-		}
-		//5. send response to client
 
-		c.JSON(http.StatusOK, allContacts)
+		//4. convert cursor to bson.M
+		var allContacts []bson.M
+		if err = cursor.All(ctx, &allContacts); err != nil {
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Data is invalid"))
+			c.Abort()
+			return
+		}
+
+		//5. send response to client
+		c.JSON(http.StatusOK, helper.FormatResponse("success", allContacts))
 
 	}
 }
@@ -323,7 +337,8 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		//3. read request from client and store to "newChat" variable
 		if err := c.BindJSON(&newChat); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
 			return
 		}
 
@@ -340,7 +355,8 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 			defer cancel()
 
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", err.Error()))
+				c.Abort()
 				return
 			}
 			//5.c. add userId to message object
@@ -349,7 +365,8 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 			//5.a. add rooomId to message object
 			m.ContactId = newChat.ContactId
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "contact id and phone not found"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Contact id and phone not found"))
+			c.Abort()
 			return
 		}
 
@@ -357,9 +374,7 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 		hub.MainHub.Broadcast <- m
 
 		//7. send response to client
-		c.JSON(http.StatusOK, map[string]bool{
-			"success": true,
-		})
+		c.JSON(http.StatusOK, helper.FormatResponse("success", m))
 
 	}
 }
@@ -377,21 +392,23 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		//3. read request from client and store to "request" variable
 		if err := c.BindJSON(&request); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
 			return
 		}
 
 		//4. check if token is present
 		plainToken, ok := request["refresh_token"].(string)
 		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "refresh_token is not present"})
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "refresh_token is not present"))
+			c.Abort()
 			return
 		}
 
 		//5. change plain token to be signedDetails that contains user id
 		claims, errMessage := helper.ValidateRefreshToken(plainToken)
 		if errMessage != "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": errMessage})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", errMessage))
 			c.Abort()
 			return
 		}
@@ -402,7 +419,8 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
 		defer cancel()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "user not found"))
+			c.Abort()
 			return
 		}
 
@@ -417,6 +435,6 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		user.Password = ""
 
 		//10. send response to client
-		c.JSON(http.StatusOK, user)
+		c.JSON(http.StatusOK, helper.FormatResponse("success", user))
 	}
 }
