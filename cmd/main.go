@@ -1,8 +1,10 @@
 package main
 
 import (
+	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	db "github.com/ricky7171/test_wa_backend/internal/database"
 	"github.com/ricky7171/test_wa_backend/internal/hub"
 	"github.com/ricky7171/test_wa_backend/internal/middleware"
@@ -24,6 +26,13 @@ type RegisterRequest struct {
 }
 
 func main() {
+
+	//init .env
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	//init database
 	var dbInstance *mongo.Database = db.DBinstance()
