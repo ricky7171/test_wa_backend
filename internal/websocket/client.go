@@ -1,9 +1,10 @@
-package hub
+package websocket
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -39,17 +40,20 @@ type connection struct {
 // readPump pumps messages from the websocket connection to the hub.
 func (s subscription) readPump() {
 	c := s.conn
-	defer func() {
-		MainHub.Unregister <- s
-		c.ws.Close()
-	}()
 	c.ws.SetReadLimit(maxMessageSize)
 
+	var duplicateDetected bool
 	for {
 		_, msg, err := c.ws.ReadMessage() //waiting message from websocket
 		if err != nil {
-			fmt.Println("[close] ", err)
-			break
+			if !strings.Contains(err.Error(), "Duplicate connection") { //when there is an error, then check if the error is NOT because duplicate connection, then give flag that this is not duplicate
+				duplicateDetected = false
+				fmt.Println("[close] ", err.Error())
+			} else { //if there is an error and this error because duplicate connection, then give flag that there is duplicate connection occur
+				duplicateDetected = true
+			}
+			break //whatever the error, it will go out from this for loop
+
 		}
 
 		//convert plain message data to formated message struct
@@ -59,12 +63,23 @@ func (s subscription) readPump() {
 
 		if err := json.Unmarshal(msg, &message); err != nil {
 			fmt.Println("Cannot unmarshall message : ", msg)
+			duplicateDetected = false //this means, that this error not because duplicate connection
 			break
 		}
 		MainHub.Broadcast <- message
 	}
 
+	//notify client that websocket was closed
 	c.write(websocket.CloseMessage, []byte{})
+
+	if duplicateDetected { //if duplicate connection detected, then close only channel in this connection
+		close(s.conn.send)
+	} else { //if this is not because duplicate connection (may be user exit from browser), then unregister this subscription (means remove this subs from memory)
+		MainHub.Unregister <- s
+	}
+
+	//close this websocket connection
+	c.ws.Close()
 
 }
 
