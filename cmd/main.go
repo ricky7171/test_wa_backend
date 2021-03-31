@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -36,6 +37,8 @@ func main() {
 
 	//init database
 	var dbInstance *mongo.Database = db.DBinstance()
+
+	defer dbInstance.Client().Disconnect(context.TODO())
 
 	//run hub to listen data chat websocket on channel
 	go websocket.MainHub.Run(dbInstance)
@@ -74,4 +77,5 @@ func main() {
 		port = "8080"
 	}
 	router.Run(":" + port)
+
 }
