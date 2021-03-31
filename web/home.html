@@ -466,23 +466,29 @@
                     let messages = evt.data.split('\n');
                     for (let i = 0; i < messages.length; i++) {
                         var plainMessage = messages[i];
-                        var formattedMessage = JSON.parse(plainMessage);
-                        //this means, when incoming message is an acknowledge that current user message was sent to receiver, then..
-                        if(formattedMessage['from_user_id'] == access['_id']) {
-                            //if current user is opening that chat log according to this message
-                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["to_user_id"]) {
-                                addMessage(false, true,"Me",formattedMessage['data']);
-                            } else {
-                                notifyNewMessage(formattedMessage['from_user_id'], false); //without bg change
-                            }
-                        } else { //this means, when incoming message is from other people send message to current user
-                            //if current user is opening that chat log according to this message
-                            if($("#send_chat_button").attr("to_user_id") == formattedMessage["from_user_id"]) {
-                                addMessage(false, false,$("#send_chat_button").attr("to_user_name"),formattedMessage['data']);
-                            } else { //if current user is NOT opening that chat log according to this message
-                                notifyNewMessage(formattedMessage['from_user_id']);
+                        if(plainMessage == "This connection is lost, because you have opened a chat on another page") {
+                            conn.close(1000, "Duplicate connection");
+                            alert("You are detected that you have opened a chat page on another page, please close this page immediately!")
+                        } else {
+                            var formattedMessage = JSON.parse(plainMessage);
+                            //this means, when incoming message is an acknowledge that current user message was sent to receiver, then..
+                            if(formattedMessage['from_user_id'] == access['_id']) {
+                                //if current user is opening that chat log according to this message
+                                if($("#send_chat_button").attr("to_user_id") == formattedMessage["to_user_id"]) {
+                                    addMessage(false, true,"Me",formattedMessage['data']);
+                                } else {
+                                    notifyNewMessage(formattedMessage['from_user_id'], false); //without bg change
+                                }
+                            } else { //this means, when incoming message is from other people send message to current user
+                                //if current user is opening that chat log according to this message
+                                if($("#send_chat_button").attr("to_user_id") == formattedMessage["from_user_id"]) {
+                                    addMessage(false, false,$("#send_chat_button").attr("to_user_name"),formattedMessage['data']);
+                                } else { //if current user is NOT opening that chat log according to this message
+                                    notifyNewMessage(formattedMessage['from_user_id']);
+                                }
                             }
                         }
+                        
 
                         
                     }
