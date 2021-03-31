@@ -6,9 +6,9 @@ import (
 
 	"github.com/joho/godotenv"
 	db "github.com/ricky7171/test_wa_backend/internal/database"
-	"github.com/ricky7171/test_wa_backend/internal/hub"
 	"github.com/ricky7171/test_wa_backend/internal/middleware"
 	routes "github.com/ricky7171/test_wa_backend/internal/routes"
+	"github.com/ricky7171/test_wa_backend/internal/websocket"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/gin-gonic/gin"
@@ -38,7 +38,7 @@ func main() {
 	var dbInstance *mongo.Database = db.DBinstance()
 
 	//run hub to listen data chat websocket on channel
-	go hub.MainHub.Run(dbInstance)
+	go websocket.MainHub.Run(dbInstance)
 
 	//make router instance
 	router := gin.New()
