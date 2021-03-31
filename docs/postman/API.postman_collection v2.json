@@ -1,0 +1,1429 @@
+{
+	"info": {
+		"_postman_id": "6fa1069f-67f4-4f79-a0b5-053c212b7ed4",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\" : \"081326795815\",\r\n    \"password\" : \"123123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{heroku}}/api/auth/login",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "login with correct body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phone\": \"081326795816\",\r\n    \"password\" : \"123123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/login",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:00:39 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "564"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"_id\": \"60641e13076dc56e5918202d\",\n        \"name\": \"setiawan\",\n        \"phone\": \"081326795816\",\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2V0aWF3YW4iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNiIsIklEIjoiNjA2NDFlMTMwNzZkYzU2ZTU5MTgyMDJkIiwiZXhwIjoxNjE3MjYwNDM5fQ.st8a50h1gVBhbKvIdoJ2rOHrfHmQHHGaRj0l7vjgmqc\",\n        \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6IjYwNjQxZTEzMDc2ZGM1NmU1OTE4MjAyZCIsImV4cCI6MTYxNzc3ODgzOX0.JvSXPsNuneCBYddEZOyAzC9WKFOMnUk5JYUflyqNxrQ\",\n        \"created_at\": \"2021-03-31T07:00:35.499Z\",\n        \"updated_at\": \"2021-03-31T07:00:35.499Z\"\n    },\n    \"status\": \"success\"\n}"
+						},
+						{
+							"name": "login with missing body request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password\" : \"123123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/login",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:04:50 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "112"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Key: 'User.Phone' Error:Field validation for 'Phone' failed on the 'required' tag\",\n    \"status\": \"error\"\n}"
+						}
+					]
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"setiawan\",\r\n    \"password\" : \"123123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{heroku}}/api/auth/register",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "register with duplicate phone number",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phone\" : \"081326795816\",\r\n    \"name\" : \"setiawan\",\r\n    \"password\" : \"123123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/register",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:03:54 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "56"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"this phone already exists\",\n    \"status\": \"error\"\n}"
+						},
+						{
+							"name": "register with correct body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phone\" : \"081326795816\",\r\n    \"name\" : \"setiawan\",\r\n    \"password\" : \"123123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/register",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:00:35 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "69"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"InsertedID\": \"60641e13076dc56e5918202d\"\n    },\n    \"status\": \"success\"\n}"
+						},
+						{
+							"name": "register with missing body request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"setiawan\",\r\n    \"password\" : \"123123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/register",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:04:15 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "112"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Key: 'User.Phone' Error:Field validation for 'Phone' failed on the 'required' tag\",\n    \"status\": \"error\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refresh_token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYwMzQzfQ.GVfaUferyUYCQeOq2p_pjkeOxoAXYXEIeDP_b0-ZHVE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{heroku}}/api/auth/refresh-token",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Refresh Token with correct body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"refresh_token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYwMzQzfQ.GVfaUferyUYCQeOq2p_pjkeOxoAXYXEIeDP_b0-ZHVE\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/refresh-token",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"refresh-token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 06:59:16 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "592"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"_id\": \"60641da5076dc56e5918202c\",\n        \"name\": \"samuel ricky saputro\",\n        \"phone\": \"081326795815\",\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYwMzU2fQ.-a7EQfDSUC-8Chs4fkDweHe663di2ACn6MG9nmUEwoM\",\n        \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6IjYwNjQxZGE1MDc2ZGM1NmU1OTE4MjAyYyIsImV4cCI6MTYxNzc3ODc1Nn0.b7XG5rKdOoEKKOk8D5UuZYWdhW8eImJOvR136aFceas\",\n        \"created_at\": \"2021-03-31T06:58:45.464Z\",\n        \"updated_at\": \"2021-03-31T06:58:45.464Z\"\n    },\n    \"status\": \"success\"\n}"
+						},
+						{
+							"name": "Refresh Token with missing body request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/refresh-token",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"refresh-token"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:07:05 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "34"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\"message\":\"EOF\",\"status\":\"error\"}"
+						}
+					]
+				},
+				{
+					"name": "Check Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{heroku}}/api/auth/check-token",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"check-token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Check Token with missing body request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/check-token",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"check-token"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:21:14 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "34"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\"message\":\"EOF\",\"status\":\"error\"}"
+						},
+						{
+							"name": "Check Token with correct body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2V0aWF3YW4iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNiIsIklEIjoiNjA2NDFlMTMwNzZkYzU2ZTU5MTgyMDJkIiwiZXhwIjoxNjE3MjYwNDM5fQ.st8a50h1gVBhbKvIdoJ2rOHrfHmQHHGaRj0l7vjgmqc\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/auth/check-token",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"check-token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:21:00 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "183"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"_id\": \"60641e13076dc56e5918202d\",\n        \"name\": \"setiawan\",\n        \"phone\": \"081326795816\",\n        \"created_at\": \"2021-03-31T07:00:35.499Z\",\n        \"updated_at\": \"2021-03-31T07:00:35.499Z\"\n    },\n    \"status\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "getchat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYxNzI1fQ.vixii2rDOdfypQ5XvHoZq8Om8Jk7R_1nwFBeNLHe5og",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGI3MDRjODM2ODg2YjhlN2Q5MzZhNiIsImV4cCI6MTYxNTY0MzA4OX0.H4hRokceMRB3Tirg3TvW4ELBR3b3lxneTbbILFvyM_c",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{heroku}}/api/chat/60641e38076dc56e5918202e/60641e53076dc56e5918203d",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"chat",
+								"60641e38076dc56e5918202e",
+								"60641e53076dc56e5918203d"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getchat page 1",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "token",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGI3MDRjODM2ODg2YjhlN2Q5MzZhNiIsImV4cCI6MTYxNTY0MzA4OX0.H4hRokceMRB3Tirg3TvW4ELBR3b3lxneTbbILFvyM_c",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{heroku}}/api/chat/60641e38076dc56e5918202e/nil",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"chat",
+										"60641e38076dc56e5918202e",
+										"nil"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:24:55 GMT"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"_id\": \"6064233a3f89c010945fc46d\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"hi wannn\",\n            \"created_at\": \"2021-03-31T07:22:34.361Z\"\n        },\n        {\n            \"_id\": \"60641ff0076dc56e5918204f\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"\",\n            \"created_at\": \"2021-03-31T07:08:32.89Z\"\n        },\n        {\n            \"_id\": \"60641e6a076dc56e5918204e\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-30\",\n            \"created_at\": \"2021-03-31T07:02:02.439Z\"\n        },\n        {\n            \"_id\": \"60641e69076dc56e5918204d\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-29\",\n            \"created_at\": \"2021-03-31T07:02:01.112Z\"\n        },\n        {\n            \"_id\": \"60641e67076dc56e5918204c\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-28\",\n            \"created_at\": \"2021-03-31T07:01:59.943Z\"\n        },\n        {\n            \"_id\": \"60641e65076dc56e5918204b\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-27\",\n            \"created_at\": \"2021-03-31T07:01:57.521Z\"\n        },\n        {\n            \"_id\": \"60641e64076dc56e5918204a\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-26\",\n            \"created_at\": \"2021-03-31T07:01:56.231Z\"\n        },\n        {\n            \"_id\": \"60641e63076dc56e59182049\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-25\",\n            \"created_at\": \"2021-03-31T07:01:55.158Z\"\n        },\n        {\n            \"_id\": \"60641e62076dc56e59182048\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-24\",\n            \"created_at\": \"2021-03-31T07:01:54.048Z\"\n        },\n        {\n            \"_id\": \"60641e60076dc56e59182047\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-23\",\n            \"created_at\": \"2021-03-31T07:01:52.75Z\"\n        },\n        {\n            \"_id\": \"60641e5f076dc56e59182046\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-22\",\n            \"created_at\": \"2021-03-31T07:01:51.412Z\"\n        },\n        {\n            \"_id\": \"60641e5e076dc56e59182045\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-21\",\n            \"created_at\": \"2021-03-31T07:01:50.454Z\"\n        },\n        {\n            \"_id\": \"60641e5d076dc56e59182044\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-20\",\n            \"created_at\": \"2021-03-31T07:01:49.46Z\"\n        },\n        {\n            \"_id\": \"60641e5c076dc56e59182043\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-19\",\n            \"created_at\": \"2021-03-31T07:01:48.095Z\"\n        },\n        {\n            \"_id\": \"60641e5a076dc56e59182042\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-18\",\n            \"created_at\": \"2021-03-31T07:01:46.899Z\"\n        },\n        {\n            \"_id\": \"60641e59076dc56e59182041\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-17\",\n            \"created_at\": \"2021-03-31T07:01:45.647Z\"\n        },\n        {\n            \"_id\": \"60641e58076dc56e59182040\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-16\",\n            \"created_at\": \"2021-03-31T07:01:44.469Z\"\n        },\n        {\n            \"_id\": \"60641e56076dc56e5918203f\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-15\",\n            \"created_at\": \"2021-03-31T07:01:42.819Z\"\n        },\n        {\n            \"_id\": \"60641e55076dc56e5918203e\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-14\",\n            \"created_at\": \"2021-03-31T07:01:41.06Z\"\n        },\n        {\n            \"_id\": \"60641e53076dc56e5918203d\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-13\",\n            \"created_at\": \"2021-03-31T07:01:39.919Z\"\n        }\n    ],\n    \"status\": \"success\"\n}"
+						},
+						{
+							"name": "getchat page 2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "token",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4NTcyNzMyMjc1NSIsIlVpZCI6IjYwNGI3MDRjODM2ODg2YjhlN2Q5MzZhNiIsImV4cCI6MTYxNTY0MzA4OX0.H4hRokceMRB3Tirg3TvW4ELBR3b3lxneTbbILFvyM_c",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{heroku}}/api/chat/60641e38076dc56e5918202e/60641e53076dc56e5918203d",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"chat",
+										"60641e38076dc56e5918202e",
+										"60641e53076dc56e5918203d"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:25:19 GMT"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"_id\": \"60641e52076dc56e5918203c\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-12\",\n            \"created_at\": \"2021-03-31T07:01:38.734Z\"\n        },\n        {\n            \"_id\": \"60641e50076dc56e5918203b\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-111\",\n            \"created_at\": \"2021-03-31T07:01:36.979Z\"\n        },\n        {\n            \"_id\": \"60641e4f076dc56e5918203a\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-10\",\n            \"created_at\": \"2021-03-31T07:01:35.82Z\"\n        },\n        {\n            \"_id\": \"60641e4e076dc56e59182039\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-9\",\n            \"created_at\": \"2021-03-31T07:01:34.564Z\"\n        },\n        {\n            \"_id\": \"60641e4d076dc56e59182038\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-8\",\n            \"created_at\": \"2021-03-31T07:01:33.098Z\"\n        },\n        {\n            \"_id\": \"60641e4b076dc56e59182037\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-7\",\n            \"created_at\": \"2021-03-31T07:01:31.616Z\"\n        },\n        {\n            \"_id\": \"60641e4a076dc56e59182036\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-6\",\n            \"created_at\": \"2021-03-31T07:01:30.23Z\"\n        },\n        {\n            \"_id\": \"60641e48076dc56e59182035\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-5\",\n            \"created_at\": \"2021-03-31T07:01:28.819Z\"\n        },\n        {\n            \"_id\": \"60641e46076dc56e59182034\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-4\",\n            \"created_at\": \"2021-03-31T07:01:26.658Z\"\n        },\n        {\n            \"_id\": \"60641e45076dc56e59182033\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-3\",\n            \"created_at\": \"2021-03-31T07:01:25.64Z\"\n        },\n        {\n            \"_id\": \"60641e44076dc56e59182032\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-2\",\n            \"created_at\": \"2021-03-31T07:01:24.315Z\"\n        },\n        {\n            \"_id\": \"60641e42076dc56e59182031\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"p-1\",\n            \"created_at\": \"2021-03-31T07:01:22.917Z\"\n        },\n        {\n            \"_id\": \"60641e3e076dc56e59182030\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"ping\",\n            \"created_at\": \"2021-03-31T07:01:18.759Z\"\n        },\n        {\n            \"_id\": \"60641e38076dc56e5918202f\",\n            \"contact_id\": \"60641e38076dc56e5918202e\",\n            \"sender_id\": \"60641da5076dc56e5918202c\",\n            \"message\": \"woi wan\",\n            \"created_at\": \"2021-03-31T07:01:12.636Z\"\n        }\n    ],\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "getcontact",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYxNzI1fQ.vixii2rDOdfypQ5XvHoZq8Om8Jk7R_1nwFBeNLHe5og",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{heroku}}/api/contact",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"contact"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getcontact",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{heroku}}/api/contact",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"contact"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:24:18 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "237"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"_id\": \"60641e38076dc56e5918202e\",\n            \"users_info\": [\n                {\n                    \"_id\": \"60641da5076dc56e5918202c\",\n                    \"name\": \"samuel ricky saputro\"\n                },\n                {\n                    \"_id\": \"60641e13076dc56e5918202d\",\n                    \"name\": \"setiawan\"\n                }\n            ],\n            \"created_at\": \"2021-03-31T07:01:12.623Z\"\n        }\n    ],\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "newchat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOYW1lIjoic2FtdWVsIHJpY2t5IHNhcHV0cm8iLCJQaG9uZSI6IjA4MTMyNjc5NTgxNSIsIklEIjoiNjA2NDFkYTUwNzZkYzU2ZTU5MTgyMDJjIiwiZXhwIjoxNjE3MjYxNzI1fQ.vixii2rDOdfypQ5XvHoZq8Om8Jk7R_1nwFBeNLHe5og",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"message\" : \"WOII\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{heroku}}/api/new-chat",
+							"host": [
+								"{{heroku}}"
+							],
+							"path": [
+								"api",
+								"new-chat"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "newchat with missing body request (phone)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"message\" : \"WOII\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/new-chat",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"new-chat"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:23:19 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Contact id or phone not found\",\n    \"status\": \"error\"\n}"
+						},
+						{
+							"name": "newchat with correct body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"phone\": \"081326795816\", \"message\": \"hi wannn\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/new-chat",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"new-chat"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:22:34 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "204"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"data\": \"hi wannn\",\n        \"from_user_id\": \"60641da5076dc56e5918202c\",\n        \"to_user_id\": \"60641e13076dc56e5918202d\",\n        \"CreatedAt\": \"0001-01-01T00:00:00Z\",\n        \"contact_id\": \"60641e38076dc56e5918202e\"\n    },\n    \"status\": \"success\"\n}"
+						},
+						{
+							"name": "newchat with missing body request (message)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"phone\": \"081326795816\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{heroku}}/api/new-chat",
+									"host": [
+										"{{heroku}}"
+									],
+									"path": [
+										"api",
+										"new-chat"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS, GET, PUT"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 31 Mar 2021 07:22:55 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "119"
+								},
+								{
+									"key": "Via",
+									"value": "1.1 vegur"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Key: 'NewChat.Message' Error:Field validation for 'Message' failed on the 'required' tag\",\n    \"status\": \"error\"\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}
