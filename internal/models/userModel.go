@@ -12,8 +12,8 @@ type User struct {
 	Name         string             `json:"name" bson:"name" validate:"required,min=2,max=100"`
 	Phone        string             `json:"phone" bson:"phone" validate:"required"`
 	Password     string             `json:",omitempty" bson:"password" validate:"required,min=6"`
-	Token        string             `json:"token" bson:",omitempty"`
-	RefreshToken string             `json:"refresh_token" bson:",omitempty"`
+	Token        string             `json:"token,omitempty" bson:",omitempty"`
+	RefreshToken string             `json:"refresh_token,omitempty" bson:",omitempty"`
 	CreatedAt    time.Time          `json:"created_at" bson:"createdAt"`
 	UpdatedAt    time.Time          `json:"updated_at" bson:"updatedAt"`
 }
