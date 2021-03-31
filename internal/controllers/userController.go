@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
 	helper "github.com/ricky7171/test_wa_backend/internal/helpers"
-	"github.com/ricky7171/test_wa_backend/internal/hub"
 	"github.com/ricky7171/test_wa_backend/internal/models"
+	"github.com/ricky7171/test_wa_backend/internal/websocket"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -37,7 +36,7 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	msg := ""
 
 	if err != nil {
-		msg = fmt.Sprintf("login or passowrd is incorrect")
+		msg = "login or passowrd is incorrect"
 		check = false
 	}
 
@@ -183,7 +182,7 @@ func ConnectWs() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		userID := c.Param("userId")
-		hub.ServeWs(c.Writer, c.Request, userID)
+		websocket.ServeWs(c.Writer, c.Request, userID)
 	}
 }
 
@@ -282,26 +281,8 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 					{
 						"$match", bson.M{
 							"users": bson.M{
-								"$in": []interface{}{userObjetID},
+								"$in": []models.UserWithName{{ID: userObjetID, Name: c.GetString("name")}},
 							},
-						},
-					},
-				},
-				bson.D{
-					{
-						"$lookup", bson.M{
-							"from":         "users",
-							"localField":   "users",
-							"foreignField": "_id",
-							"as":           "users_info",
-						},
-					},
-				},
-				bson.D{
-					{
-						"$project", bson.M{
-							"users_info._id":  1,
-							"users_info.name": 1,
 						},
 					},
 				},
@@ -311,7 +292,7 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 		defer cancel()
 
 		//4. convert cursor to bson.M
-		var allContacts []bson.M
+		var allContacts []models.ContactWithName
 		if err = cursor.All(ctx, &allContacts); err != nil {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Data is invalid"))
 			c.Abort()
@@ -345,41 +326,90 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 		//4. make object model message
 		m := models.Message{Data: newChat.Message, FromUserId: c.GetString("userId")}
 
-		//5. if client doesn't send contactId but send phone number, then it need to search wether client have contact with this phone number or not
-		if newChat.ContactId == "" && newChat.Phone != "" {
-			//5.1. make user model
-			var user models.User
+		//5. make fromUserObjectId variable that will used to find contact
+		fromUserObjectId, _ := primitive.ObjectIDFromHex(m.FromUserId)
 
-			//5.b. get user data according that phone number
-			err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&user)
+		//6. if client doesn't send contactId but send phone number, then it need to get user instance according to phone number that send by client.
+		if newChat.ContactId == "" && newChat.Phone != "" {
+			//6.1. make user model
+			var userReceiver models.User
+
+			//6.2. get user data according that phone number
+			err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": newChat.Phone}).Decode(&userReceiver)
 			defer cancel()
 
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "User not found"))
 				c.Abort()
 				return
 			}
-			//5.c. add userId to message object
-			m.ToUserId = user.ID.Hex()
+			//6.3. add userId to message object
+			m.ToUserId = userReceiver.ID.Hex()
+
+			//6.4. convert toUserId to objectId
+			toUserObjectId, _ := primitive.ObjectIDFromHex(m.ToUserId)
+
+			//6.5. search wether client have contact with this user or not
+			var contactExists models.ContactWithName
+			err = dbInstance.Collection("contacts").FindOne(
+				ctx,
+				bson.M{
+					"users": bson.M{
+						"$all": []models.UserWithName{
+							{ID: fromUserObjectId, Name: c.GetString("name")},
+							{ID: toUserObjectId, Name: userReceiver.Name},
+						},
+					},
+				},
+			).Decode(&contactExists)
+			defer cancel()
+
+			//6.6. check wether contact found or not found
+			if err != nil { //if contact not found, then need to make new contact
+				//6.6.1. make new contact model
+				newContactId := primitive.NewObjectID()
+				var contact models.ContactWithName
+				contact.CreatedAt = time.Now()
+				contact.ID = newContactId
+				contact.Users = []models.UserWithName{
+					{ID: fromUserObjectId, Name: c.GetString("name")},
+					{ID: toUserObjectId, Name: userReceiver.Name},
+				}
+
+				//6.6.2. insert new contact to database
+				_, err := dbInstance.Collection("contacts").InsertOne(ctx, contact)
+				defer cancel()
+
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Cannot insert contact"))
+					c.Abort()
+					return
+				}
+
+				//6.6.3. store new contact Id to message model
+				m.ContactId = newContactId.Hex()
+			} else { //means, contact found, then NO need to make new contact
+				m.ContactId = contactExists.ID.Hex()
+			}
+
 		} else if newChat.ContactId != "" { //if client send contatId
-			//5.a. add rooomId to message object
+			//6.1. add ContactId to message object
 			m.ContactId = newChat.ContactId
-		} else {
+		} else { //if client doesn't send contactId or phone number
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Contact id and phone not found"))
 			c.Abort()
 			return
 		}
 
-		//6. send message object to broadcast channel
-		hub.MainHub.Broadcast <- m
+		//7. send message object to broadcast channel
+		websocket.MainHub.Broadcast <- m
 
-		//7. send response to client
+		//8. send response to client
 		c.JSON(http.StatusOK, helper.FormatResponse("success", m))
 
 	}
 }
 
-//token refresh
 //used to refresh access token that has been expired
 func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -418,7 +448,7 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		userID, _ := primitive.ObjectIDFromHex(claims.ID)
 		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
 		defer cancel()
-		if err != nil {
+		if err != nil { //means, user not found (maybe user was deleted)
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "user not found"))
 			c.Abort()
 			return
@@ -435,6 +465,58 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		user.Password = ""
 
 		//10. send response to client
+		c.JSON(http.StatusOK, helper.FormatResponse("success", user))
+	}
+}
+
+//check token valid or not
+func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//1. make ctx with timeout 100 second
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		//2. get token from body
+		var request map[string]interface{}
+
+		//3. read request from client and store to "request" variable
+		if err := c.BindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
+			return
+		}
+
+		//4. check if token is present
+		plainToken, ok := request["refresh_token"].(string)
+		if !ok {
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "refresh_token is not present"))
+			c.Abort()
+			return
+		}
+
+		//5. change plain token to be signedDetails that contains user id
+		claims, errMessage := helper.ValidateRefreshToken(plainToken)
+		if errMessage != "" {
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", errMessage))
+			c.Abort()
+			return
+		}
+
+		//6. get user with ID that get from claims
+		var user models.User
+		userID, _ := primitive.ObjectIDFromHex(claims.ID)
+		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
+		defer cancel()
+		if err != nil { //means, user not found (maybe user was deleted)
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "user not found"))
+			c.Abort()
+			return
+		}
+
+		//7. remove password attribute, because it will send to client
+		user.Password = ""
+
+		//8. send response to client
 		c.JSON(http.StatusOK, helper.FormatResponse("success", user))
 	}
 }
