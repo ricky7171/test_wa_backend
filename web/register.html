@@ -54,6 +54,33 @@
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    //variabel that save account information from localstorage
+    var access = JSON.parse(localStorage.getItem("access"));
+
+    //if variable "access" is null, then redirect to /login
+    if(access != null && access['token'] != null) {
+        $.ajax({
+            type: "POST",
+            url: "api/auth/check-token",
+            data: JSON.stringify({
+                "token" : access['token']
+            }),
+            contentType: "application/json; charset=utf-8",
+            accepts: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, textStatus) {
+                if(data != null && data['status'] == 'success') {
+                    $(location).attr('href', '/home');
+                } else {
+                    localStorage.removeItem('access');
+                }
+            },
+            error: function(data, textStatus) {
+                localStorage.removeItem('access');
+            }
+        });
+    }
+    
     $("#submitRegister").click(function () {
         var body = {
             "name": $("#inputName").val(),
