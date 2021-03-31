@@ -495,9 +495,9 @@ func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		}
 
 		//4. check if token is present
-		plainToken, ok := request["refresh_token"].(string)
+		plainToken, ok := request["token"].(string)
 		if !ok {
-			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "refresh_token is not present"))
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "token is not present"))
 			c.Abort()
 			return
 		}
