@@ -16,7 +16,7 @@ type Message struct {
 }
 
 type NewChat struct {
-	Phone     string `json:"phone" validate:"min=2,max=100"`
+	Phone     string `json:"phone"`
 	Message   string `json:"message" validate:"required,min=2,max=100"`
-	ContactId string `json:"contact_id" validate:"min=2,max=100"`
+	ContactId string `json:"contact_id"`
 }
