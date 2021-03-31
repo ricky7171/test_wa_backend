@@ -25,7 +25,7 @@ type SignedRefreshTokenDetails struct {
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
-// GenerateAllTokens generates both the detailed token and refresh token
+// GenerateAllTokens function is used for generates both the token and refresh token
 func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (signedToken string, signedRefreshToken string, err error) {
 	userIdString := userId.Hex()
 
@@ -62,9 +62,10 @@ func GenerateAllTokens(name string, phone string, userId primitive.ObjectID) (si
 	return token, refreshToken, err
 }
 
-//ValidateToken validates the jwt token
-//convert token jadi data user
+//ValidateToken function used to validates the jwt token
 func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) {
+
+	//1. convert claims to token
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&SignedTokenDetails{},
@@ -78,6 +79,7 @@ func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) 
 		return
 	}
 
+	//2. check wether token is valid or invalid
 	claims, ok := token.Claims.(*SignedTokenDetails)
 	if !ok {
 		msg = fmt.Sprintf("the token is invalid")
@@ -85,6 +87,7 @@ func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) 
 		return
 	}
 
+	//3. check wether token was expired or not
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		msg = fmt.Sprintf("token is expired")
 		msg = err.Error()
@@ -94,8 +97,10 @@ func ValidateToken(signedToken string) (claims *SignedTokenDetails, msg string) 
 	return claims, msg
 }
 
-//convert refresh_token to SignedRefreshTokenDetails that contain user id
+//validateRefreshToken function used to validates the jwt refresh token
 func ValidateRefreshToken(signedToken string) (claims *SignedRefreshTokenDetails, msg string) {
+
+	//1. convert claims to token
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&SignedRefreshTokenDetails{},
@@ -109,6 +114,7 @@ func ValidateRefreshToken(signedToken string) (claims *SignedRefreshTokenDetails
 		return
 	}
 
+	//2. check wether token is valid or invalid
 	claims, ok := token.Claims.(*SignedRefreshTokenDetails)
 	if !ok {
 		msg = fmt.Sprintf("the token is invalid")
@@ -116,6 +122,7 @@ func ValidateRefreshToken(signedToken string) (claims *SignedRefreshTokenDetails
 		return
 	}
 
+	//3. check wether token was expired or not
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		msg = fmt.Sprintf("token is expired")
 		msg = err.Error()

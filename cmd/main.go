@@ -15,17 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type LoginRequest struct {
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-}
-
-type RegisterRequest struct {
-	Name     string `json:"name"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-}
-
 func main() {
 
 	//init .env
@@ -37,7 +26,6 @@ func main() {
 
 	//init database
 	var dbInstance *mongo.Database = db.DBinstance()
-
 	defer dbInstance.Client().Disconnect(context.TODO())
 
 	//run hub to listen data chat websocket on channel

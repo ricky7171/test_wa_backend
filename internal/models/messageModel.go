@@ -4,9 +4,6 @@ import (
 	"time"
 )
 
-//contoh message
-// {data : "blablablabla", fromUserId : 1, toUserId : 2}
-// ini masih belum tau buat apa, tapi intinya ini adalah data antara message dengan room
 type Message struct {
 	Data       string    `json:"data"`
 	FromUserId string    `json:"from_user_id"`

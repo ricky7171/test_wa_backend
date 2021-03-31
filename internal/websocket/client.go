@@ -34,7 +34,9 @@ type connection struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
-	mu   sync.Mutex
+
+	// Mutext to prevent deadlock
+	mu sync.Mutex
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -57,8 +59,6 @@ func (s subscription) readPump() {
 		}
 
 		//convert plain message data to formated message struct
-		//example messageMap :
-		//{"data":"Hi","from_user_id":"605ae53dce933ec8b23f9cc1","to_user_id":"605ae3f2ce933ec8b23f9cbd","contact_id":"605ae6dcdbadf9c66aa4fe60"}
 		var message models.Message
 
 		if err := json.Unmarshal(msg, &message); err != nil {

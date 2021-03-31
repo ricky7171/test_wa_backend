@@ -26,7 +26,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-//VerifyPassword checks the input password while verifying it with the passward in the DB.
+//VerifyPassword checks the input password while verifying it with the password in the DB.
 //userPassword is plain password
 //providedPassword is hashed password
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
@@ -91,7 +91,7 @@ func Register(dbInstance *mongo.Database) gin.HandlerFunc {
 		}
 		user.Password = password
 
-		//7. fill attribute : createdAt, updatedAt, id, token, and refreshToken
+		//7. fill attribute : createdAt, updatedAt, id
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = time.Now()
 		user.ID = primitive.NewObjectID()
@@ -139,7 +139,7 @@ func Login(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		//5. search user that have client request phone number, then save that user to "founduser" variable
+		//5. search user that have client request phone number
 		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"phone": user.Phone}).Decode(&foundUser)
 		defer cancel()
 		if err != nil {
@@ -152,7 +152,6 @@ func Login(dbInstance *mongo.Database) gin.HandlerFunc {
 		//user.Password is password plain
 		//foundUser.Password is hashed password
 		//if wrong, return error : login or passowrd is incorrect
-		//this process will take long time (about 1 second), because bcrypt is complex
 		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
 		if !passwordIsValid {
@@ -197,6 +196,7 @@ func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 		if lastID != "" {
 			lastObjectID, _ = primitive.ObjectIDFromHex(lastID)
 		}
+
 		//2. make context
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
@@ -242,6 +242,7 @@ func GetChat(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
+		//4. convert result to array of chat model
 		var chats []models.Chat
 		if err = cursor.All(ctx, &chats); err != nil {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Invalid data format from DB"))
@@ -273,7 +274,7 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		//3. get all data chat WHERE it contains userId
+		//3. get all data chat WHERE it contains userId & user's name
 		cursor, err := dbInstance.Collection("contacts").Aggregate(
 			ctx,
 			mongo.Pipeline{
@@ -291,7 +292,7 @@ func GetContact(dbInstance *mongo.Database) gin.HandlerFunc {
 
 		defer cancel()
 
-		//4. convert cursor to bson.M
+		//4. convert cursor to contactWithName model
 		var allContacts []models.ContactWithName
 		if err = cursor.All(ctx, &allContacts); err != nil {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Data is invalid"))
@@ -428,14 +429,14 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		//2. get token from body
 		var request map[string]interface{}
 
-		//3. read request from client and store to "request" variable
+		//3. read request from client
 		if err := c.BindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
 			c.Abort()
 			return
 		}
 
-		//4. check if token is present
+		//4. check if refresh_token is present
 		plainToken, ok := request["refresh_token"].(string)
 		if !ok {
 			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "refresh_token is not present"))
@@ -443,7 +444,7 @@ func RefreshToken(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		//5. change plain token to be signedDetails that contains user id
+		//5. change plain token to be signedDetails that contains user information
 		claims, errMessage := helper.ValidateRefreshToken(plainToken)
 		if errMessage != "" {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", errMessage))
@@ -484,17 +485,15 @@ func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		//2. get token from body
+		//2. read request from client
 		var request map[string]interface{}
-
-		//3. read request from client and store to "request" variable
 		if err := c.BindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
 			c.Abort()
 			return
 		}
 
-		//4. check if token is present
+		//3. check if token is present
 		plainToken, ok := request["token"].(string)
 		if !ok {
 			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", "token is not present"))
@@ -502,7 +501,7 @@ func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		//5. change plain token to be signedDetails that contains user id
+		//4. change plain token to be signedDetails that contains user information
 		claims, errMessage := helper.ValidateRefreshToken(plainToken)
 		if errMessage != "" {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", errMessage))
@@ -510,7 +509,7 @@ func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		//6. get user with ID that get from claims
+		//5. get user with ID that get from claims
 		var user models.User
 		userID, _ := primitive.ObjectIDFromHex(claims.ID)
 		err := dbInstance.Collection("users").FindOne(ctx, bson.M{"_id": userID}).Decode(&user)
@@ -521,10 +520,10 @@ func CheckToken(dbInstance *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		//7. remove password attribute, because it will send to client
+		//6. remove password attribute, because it will send to client
 		user.Password = ""
 
-		//8. send response to client
+		//7. send response to client
 		c.JSON(http.StatusOK, helper.FormatResponse("success", user))
 	}
 }

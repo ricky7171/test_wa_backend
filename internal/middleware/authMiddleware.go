@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Authz validates token and authorizes users
+// validates token and authorizes users
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -26,18 +26,18 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		//2. cek, kalau tokennya kosong, berarti return "no authorization header provided" sampe sini
+		//2. check if token is empty, then return "no authorization header provided"
 		if plainToken == "" {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Not authorized !"))
 			c.Abort()
 			return
 		}
 
-		//3. get tokennya saja (tanpa Bearer )
+		//3. get token string without "Bearer "
 		splitToken := strings.Split(plainToken, "Bearer ")
 		reqToken := splitToken[1]
 
-		//4. ubah token jadi tipe signedDetails
+		//4. convert token to SignedTokenDetails
 		claims, err := helper.ValidateToken(reqToken)
 		if err != "" {
 			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", err))
@@ -46,7 +46,7 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		//set value name, phone,uid di context
+		//5. set value name, phone, ID in gin context
 		c.Set("name", claims.Name)
 		c.Set("phone", claims.Phone)
 		c.Set("userId", claims.ID)

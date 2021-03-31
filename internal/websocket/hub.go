@@ -12,8 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//subscription example
-// {con : con1, userId : xxx123}
 type subscription struct {
 	conn   *connection
 	userId string
@@ -88,7 +86,7 @@ func (h *Hub) Run(dbInstance *mongo.Database) {
 			//1. store to database
 			SaveChat(m, dbInstance)
 
-			//2. convert object m ke byte[]
+			//2. convert object m to byte[]
 			dataSend, err := json.Marshal(m)
 			if err != nil {
 				panic(err)
@@ -104,7 +102,7 @@ func (h *Hub) Run(dbInstance *mongo.Database) {
 
 			//3.b. send to receiver ws
 			if _, ok := h.Users[m.ToUserId]; ok {
-				h.Users[m.ToUserId].send <- dataSend //send message to receiver through "send" channel
+				h.Users[m.ToUserId].send <- dataSend
 			}
 
 		}
