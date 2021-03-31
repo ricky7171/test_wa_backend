@@ -1,4 +1,4 @@
-package hub
+package websocket
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/ricky7171/test_wa_backend/internal/models"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -49,71 +48,16 @@ func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	//2. fill createdAt
-	msg.CreatedAt = time.Now()
-
-	//3. if contactId not found in msg object, then find contact first
-	//if contact not found, then make new contact
-	newFromUserIdObject, err := primitive.ObjectIDFromHex(msg.FromUserId)
-	newToUserIdObject, err := primitive.ObjectIDFromHex(msg.ToUserId)
-
-	makeNewContact := false //=> means, no need to make new contact
-	if msg.ContactId == "" {
-		var contactExists models.Contact
-		err := dbInstance.Collection("contacts").FindOne(
-			ctx,
-			bson.M{
-				"users": bson.M{
-					"$all": []interface{}{
-						newFromUserIdObject,
-						newToUserIdObject,
-					},
-				},
-			},
-		).Decode(&contactExists)
-		defer cancel()
-		if err != nil { //means, contact not found, then need to make new contact
-			makeNewContact = true
-		} else { //means, contact found, then NO need to make new contact
-			msg.ContactId = contactExists.ID.Hex()
-		}
-
-	}
-
-	//4. if contact found, then set contactId according to msg.ContactId
+	//2. make chat model
 	var chat models.Chat
-	if !makeNewContact {
-		chat.ContactId, _ = primitive.ObjectIDFromHex(msg.ContactId)
-	} else { //5. if contact not found, then insert new contact
-		newContactId := primitive.NewObjectID()
-
-		var contact models.Contact
-		contact.CreatedAt = time.Now()
-		contact.ID = newContactId
-		contact.Users = []primitive.ObjectID{
-			newFromUserIdObject,
-			newToUserIdObject,
-		}
-
-		_, err := dbInstance.Collection("contacts").InsertOne(ctx, contact)
-		defer cancel()
-
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-
-		chat.ContactId = newContactId
-
-	}
-
-	//6. insert new chat
+	chat.ContactId, _ = primitive.ObjectIDFromHex(msg.ContactId)
 	chat.CreatedAt = time.Now()
 	chat.ID = primitive.NewObjectID()
 	chat.Message = msg.Data
 	chat.SenderId, _ = primitive.ObjectIDFromHex(msg.FromUserId)
 
-	_, err = dbInstance.Collection("chats").InsertOne(ctx, chat)
+	//3. insert new chat
+	_, err := dbInstance.Collection("chats").InsertOne(ctx, chat)
 	defer cancel()
 
 	if err != nil {
@@ -129,10 +73,14 @@ func (h *Hub) Run(dbInstance *mongo.Database) {
 	for {
 		select {
 		case s := <-h.Register: //when there is user connect to ws
-			h.Users[s.userId] = s.conn //fill h.users with key that user id, then fill value with ws connection
+			if connNow, ok := h.Users[s.userId]; ok { //if there is other connection used by this user, then send warning message to that connection
+				connNow.send <- []byte("This connection is lost, because you have opened a chat on another page")
+			}
+			h.Users[s.userId] = s.conn //fill ws connection to this user
 		case s := <-h.Unregister: //when there is user disconnect from ws
 			if _, ok := h.Users[s.userId]; ok {
 				close(s.conn.send)
+
 				delete(h.Users, s.userId)
 			}
 		case m := <-h.Broadcast: //when there is message
