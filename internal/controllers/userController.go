@@ -316,9 +316,17 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 		//2. make chat model that store client request
 		var newChat models.NewChat
 
-		//3. read request from client and store to "newChat" variable
+		//3. read request from client and validate it
 		if err := c.BindJSON(&newChat); err != nil {
 			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.Abort()
+			return
+		}
+
+		validationErr := validate.Struct(newChat)
+
+		if validationErr != nil {
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", validationErr.Error()))
 			c.Abort()
 			return
 		}
@@ -396,7 +404,7 @@ func NewMessage(dbInstance *mongo.Database) gin.HandlerFunc {
 			//6.1. add ContactId to message object
 			m.ContactId = newChat.ContactId
 		} else { //if client doesn't send contactId or phone number
-			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Contact id and phone not found"))
+			c.JSON(http.StatusInternalServerError, helper.FormatResponse("error", "Contact id or phone not found"))
 			c.Abort()
 			return
 		}
