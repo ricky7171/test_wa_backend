@@ -1,15 +1,11 @@
 package websocket
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
-	"time"
 
-	"github.com/ricky7171/test_wa_backend/internal/models"
+	"github.com/ricky7171/test_wa_backend/internal/entity"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	ChatUseCase "github.com/ricky7171/test_wa_backend/internal/usecase/chat"
 )
 
 type subscription struct {
@@ -25,7 +21,7 @@ type Hub struct {
 	Users map[string]*connection
 
 	// Inbound messages from the connections.
-	Broadcast chan models.Message
+	Broadcast chan entity.Message
 
 	// Register requests from the connections.
 	Register chan subscription
@@ -35,39 +31,13 @@ type Hub struct {
 }
 
 var MainHub = Hub{
-	Broadcast:  make(chan models.Message),
+	Broadcast:  make(chan entity.Message),
 	Register:   make(chan subscription),
 	Unregister: make(chan subscription),
 	Users:      make(map[string]*connection),
 }
 
-func SaveChat(msg models.Message, dbInstance *mongo.Database) error {
-	//1. make ctx object
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	//2. make chat model
-	var chat models.Chat
-	chat.ContactId, _ = primitive.ObjectIDFromHex(msg.ContactId)
-	chat.CreatedAt = time.Now()
-	chat.ID = primitive.NewObjectID()
-	chat.Message = msg.Data
-	chat.SenderId, _ = primitive.ObjectIDFromHex(msg.FromUserId)
-
-	//3. insert new chat
-	_, err := dbInstance.Collection("chats").InsertOne(ctx, chat)
-	defer cancel()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer cancel()
-
-	return nil
-
-}
-
-func (h *Hub) Run(dbInstance *mongo.Database) {
+func (h *Hub) Run(service *ChatUseCase.Service) {
 	for {
 		select {
 		case s := <-h.Register: //when there is user connect to ws
@@ -84,10 +54,10 @@ func (h *Hub) Run(dbInstance *mongo.Database) {
 		case m := <-h.Broadcast: //when there is message
 
 			//1. store to database
-			SaveChat(m, dbInstance)
+			messageSaved, err := service.CreateMessage(&m)
 
 			//2. convert object m to byte[]
-			dataSend, err := json.Marshal(m)
+			dataSend, err := json.Marshal(messageSaved)
 			if err != nil {
 				panic(err)
 			}
