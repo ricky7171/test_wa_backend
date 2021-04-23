@@ -8,9 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ricky7171/test_wa_backend/internal/models"
-
 	"github.com/gorilla/websocket"
+	"github.com/ricky7171/test_wa_backend/internal/entity"
 )
 
 const (
@@ -59,7 +58,7 @@ func (s subscription) readPump() {
 		}
 
 		//convert plain message data to formated message struct
-		var message models.Message
+		var message entity.Message
 
 		if err := json.Unmarshal(msg, &message); err != nil {
 			fmt.Println("Cannot unmarshall message : ", msg)
