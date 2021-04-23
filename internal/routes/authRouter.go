@@ -1,15 +1,14 @@
 package routes
 
 import (
-	controller "github.com/ricky7171/test_wa_backend/internal/controllers"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/ricky7171/test_wa_backend/internal/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthRoutes(incomingRoutes *gin.Engine, dbInstance *mongo.Database) {
-	incomingRoutes.POST("/api/auth/register", controller.Register(dbInstance))
-	incomingRoutes.POST("/api/auth/login", controller.Login(dbInstance))
-	incomingRoutes.POST("/api/auth/refresh-token", controller.RefreshToken(dbInstance))
-	incomingRoutes.POST("/api/auth/check-token", controller.CheckToken(dbInstance))
+func AuthRoutes(incomingRoutes *gin.Engine, userController *controller.User) {
+	incomingRoutes.POST("/api/auth/register", userController.Register())
+	incomingRoutes.POST("/api/auth/login", userController.Login())
+	incomingRoutes.POST("/api/auth/refresh-token", userController.RefreshToken())
+	incomingRoutes.POST("/api/auth/check-token", userController.CheckToken())
 }
