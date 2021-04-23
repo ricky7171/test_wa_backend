@@ -6,9 +6,14 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/ricky7171/test_wa_backend/internal/controller"
 	db "github.com/ricky7171/test_wa_backend/internal/database"
+	"github.com/ricky7171/test_wa_backend/internal/helper"
 	"github.com/ricky7171/test_wa_backend/internal/middleware"
 	routes "github.com/ricky7171/test_wa_backend/internal/routes"
+	"github.com/ricky7171/test_wa_backend/internal/usecase/chat"
+	"github.com/ricky7171/test_wa_backend/internal/usecase/contact"
+	"github.com/ricky7171/test_wa_backend/internal/usecase/user"
 	"github.com/ricky7171/test_wa_backend/internal/websocket"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -17,48 +22,65 @@ import (
 
 func main() {
 
-	//init .env
+	//1. init .env
 	err := godotenv.Load()
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	//init database
+	//2. init database
 	var dbInstance *mongo.Database = db.DBinstance()
 	defer dbInstance.Client().Disconnect(context.TODO())
 
-	//run hub to listen data chat websocket on channel
-	go websocket.MainHub.Run(dbInstance)
+	//3. init repository pattern && helper
+	userRepo := user.NewMongoRepository(dbInstance)
+	contactRepo := contact.NewMongoRepository(dbInstance)
+	chatRepo := chat.NewMongoRepository(dbInstance)
+	tokenHelper := helper.NewTokenJwt()
 
-	//make router instance
+	//4. init service pattern
+	userService := user.NewService(userRepo, tokenHelper)
+	contactService := contact.NewService(contactRepo)
+	chatService := chat.NewService(chatRepo, userRepo, contactRepo)
+
+	//5. init middleware
+	authMiddleware := middleware.NewAuthController(*userService)
+	corsMiddleware := middleware.NewCorsController()
+
+	//6. init controller
+	userController := controller.NewUserController(*userService)
+	contactController := controller.NewContactController(*contactService)
+	chatController := controller.NewChatController(*chatService)
+	socketController := controller.NewSocketController()
+
+	//7. init router instance and laod html files
 	router := gin.New()
-
-	//load all html
 	router.LoadHTMLGlob("web/*")
 
-	// Middleware that used to log all request on terminal
+	//8. middleware that used to log all request on terminal
 	//router.Use(gin.Logger())
 
-	// Middleware that used to setting CORS
-	router.Use(middleware.CORSMiddleware())
+	//9. setup Middleware that used to setting CORS
+	router.Use(corsMiddleware.Check())
 
-	//front-end router
+	//10. setup front-end router
 	routes.ViewRoutes(router)
 
-	//authorized router
+	//11. setup authorized router that contains : chat router
 	authorized := router.Group("/")
-	authorized.Use(middleware.Authentication())
+	authorized.Use(authMiddleware.Check())
 	{
-		//- chat router
-		routes.ChatRoutes(authorized, dbInstance)
+		routes.ChatRoutes(authorized, chatController, contactController, socketController)
 	}
 
-	//unauthorized router
-	//- auth router
-	routes.AuthRoutes(router, dbInstance)
+	//12. setup unauthorized router that contains : auth router
+	routes.AuthRoutes(router, userController)
 
-	//run server
+	//13. run hub to listen data chat websocket on channel
+	go websocket.MainHub.Run(chatService)
+
+	//14. run server
 	var port string
 	port = os.Getenv("PORT")
 	if port == "" {
