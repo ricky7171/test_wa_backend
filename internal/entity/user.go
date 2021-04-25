@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"errors"
 	"time"
 
 	"github.com/ricky7171/test_wa_backend/internal/failure"
@@ -81,7 +80,7 @@ func (u *User) Validate(fields ...string) error {
 func (u *User) HashPassword() error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(u.Password), 8)
 	if err != nil {
-		return err
+		return failure.ErrHashPassword()
 	}
 	u.Password = string(bytes)
 	return nil
@@ -93,7 +92,7 @@ func (u *User) VerifyPassword(plainPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainPassword))
 
 	if err != nil {
-		return errors.New("password doesn't match")
+		return failure.ErrPasswordNotMatch()
 	}
 
 	return nil

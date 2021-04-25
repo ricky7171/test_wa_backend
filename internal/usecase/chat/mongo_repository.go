@@ -31,7 +31,7 @@ func (r *MongoRepository) FindByContact(contactId primitive.ObjectID, lastId str
 	//2. get data chat according to that contact id and last id
 	matchContactIDPipeline := bson.D{{"$match", bson.D{{"contactId", contactId}}}}
 	sortPipeline := bson.D{{"$sort", bson.D{{"_id", -1}}}}
-	paginatePipeline := bson.D{{"$match", bson.D{{"_id", bson.D{{"$lt", contactId}}}}}}
+
 	limitPipeline := bson.D{{"$limit", 20}}
 	groupPipeline := bson.D{{"$project", bson.D{{"_id", 1}, {"contactId", 1}, {"senderId", 1}, {"message", 1}, {"createdAt", 1}}}}
 
@@ -48,6 +48,12 @@ func (r *MongoRepository) FindByContact(contactId primitive.ObjectID, lastId str
 			},
 		)
 	} else { //means get another page (ex : 21 - 40, 41 - 60,etc)
+		lastObjectID, err := primitive.ObjectIDFromHex(lastId)
+		if err != nil {
+			return nil, failure.ErrConvertObjectIdToHex()
+		}
+
+		paginatePipeline := bson.D{{"$match", bson.D{{"_id", bson.D{{"$lt", lastObjectID}}}}}}
 		cursor, err = r.db.Collection("chats").Aggregate(
 			ctx,
 			mongo.Pipeline{

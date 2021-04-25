@@ -54,7 +54,7 @@ func (s *Service) MakePreparedMessage(currentUserId, currentUserName, receiverPh
 	//1. find user by receiver phone
 	receiverUser, err := s.userRepo.FindByPhone(receiverPhone)
 	if err != nil {
-		return nil, err
+		return nil, failure.ErrUserNotFound() //whatever error in userrepo, it should return user not found
 	}
 
 	//2. validate entity
@@ -87,7 +87,7 @@ func (s *Service) MakePreparedMessage(currentUserId, currentUserName, receiverPh
 	}
 
 	//7. if contact doesn't found, then create contact first
-	if err != nil {
+	if err != nil || len(contactExists) <= 0 {
 		newContact, err := entity.NewContact(currentUserWithName.ID, receiverUser.ID, currentUserWithName.Name, receiverUser.Name)
 		if err != nil {
 			return nil, err

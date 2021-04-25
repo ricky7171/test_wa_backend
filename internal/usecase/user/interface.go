@@ -2,13 +2,14 @@ package user
 
 import (
 	"github.com/ricky7171/test_wa_backend/internal/entity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //Reader interface
 type Reader interface {
 	CheckUserExists(phone string) (bool, error)
 	FindByPhone(phone string) (*entity.User, error)
-	FindById(userId string) (*entity.User, error)
+	FindById(userId primitive.ObjectID) (*entity.User, error)
 }
 
 //Writer interface

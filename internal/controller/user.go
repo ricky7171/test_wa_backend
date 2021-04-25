@@ -61,7 +61,7 @@ func (u *User) Login() gin.HandlerFunc {
 			Password string `json:"password"`
 		}
 		if err := c.BindJSON(&input); err != nil {
-			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", failure.ErrCannotReadJson().Error()))
 			c.Abort()
 			return
 		}
@@ -76,7 +76,7 @@ func (u *User) Login() gin.HandlerFunc {
 		//3. Authenticate with phone & password from request
 		userFound, err := u.userService.Authenticate(input.Phone, input.Password)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", failure.ErrLoginFailed().Error()))
+			c.JSON(http.StatusBadRequest, helper.FormatResponse("error", err.Error()))
 			c.Abort()
 			return
 		}

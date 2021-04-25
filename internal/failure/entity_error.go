@@ -6,10 +6,14 @@ import (
 )
 
 func ErrFieldRequired(nameFields ...string) error {
+	var message string
 	if len(nameFields) >= 1 {
-		return errors.New(strings.Join(nameFields[:], " or ") + " cannot be empty ")
+		message = strings.Join(nameFields[:], " or ") + " cannot be empty "
+	} else {
+		message = "some field cannot be empty"
 	}
-	return errors.New("some field cannot be empty")
+	message = "301 - " + message
+	return errors.New(message)
 }
 
 func ErrFieldLenConstraint(nameField string, minLength string, maxLength string) error {
@@ -25,7 +29,7 @@ func ErrFieldLenConstraint(nameField string, minLength string, maxLength string)
 		message += "should have max length" + maxLength
 	}
 
-	message += "301 - "
+	message = "302 - " + message
 	return errors.New(message)
 }
 
@@ -36,6 +40,10 @@ func ErrFieldNumber(nameFields ...string) error {
 	} else {
 		message = strings.Join(nameFields, ",") + " should use number > -1"
 	}
-	message += "301 - "
+	message = "303 - " + message
 	return errors.New(message)
+}
+
+func ErrPasswordNotMatch() error {
+	return errors.New("305 - password doesn't match")
 }

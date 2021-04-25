@@ -1,9 +1,6 @@
 package user
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/ricky7171/test_wa_backend/internal/entity"
 	"github.com/ricky7171/test_wa_backend/internal/failure"
 	"github.com/ricky7171/test_wa_backend/internal/helper"
@@ -37,7 +34,7 @@ func (s *Service) CreateUser(name, phone, password string) (string, error) {
 		return "", err
 	}
 	if found {
-		return "", errors.New("this phone already exists")
+		return "", failure.ErrDuplicatePhone()
 	}
 
 	//3. call user repo to create new user on database
@@ -49,7 +46,7 @@ func (s *Service) Authenticate(phone, password string) (*entity.User, error) {
 	//1. search user that have client request phone number
 	userFound, err := s.userRepo.FindByPhone(phone)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, failure.ErrUserNotFound() //whatever error in userrepo, it should return user not found
 	}
 
 	//2. validate entity
@@ -63,9 +60,6 @@ func (s *Service) Authenticate(phone, password string) (*entity.User, error) {
 	}
 
 	//4. generate access token & refresh token
-	fmt.Println("cke userFound.Name", userFound.Name)
-	fmt.Println("cke userFound.Phone", userFound.Phone)
-	fmt.Println("cke userFound.ID", userFound.ID)
 	accessToken, refreshToken, err := s.tokenHelper.GenerateAllTokens(userFound.Name, userFound.Phone, userFound.ID)
 	if err != nil {
 		return nil, err
@@ -93,9 +87,9 @@ func (s *Service) RefreshToken(refreshToken string) (*entity.User, error) {
 	}
 
 	//3. get user information from database according to userObjectId
-	userFound, err := s.userRepo.FindById(userObjectId.Hex())
+	userFound, err := s.userRepo.FindById(userObjectId)
 	if err != nil {
-		return nil, err
+		return nil, err //whatever error in userrepo, it should return user not found
 	}
 
 	//4. validate entity
@@ -131,9 +125,9 @@ func (s *Service) CheckToken(token string) (*entity.User, error) {
 	}
 
 	//3. get user information from database according to userObjectId
-	userFound, err := s.userRepo.FindById(userObjectId.Hex())
+	userFound, err := s.userRepo.FindById(userObjectId)
 	if err != nil {
-		return nil, err
+		return nil, failure.ErrUserNotFound() //whatever error in userrepo, it should return user not found
 	}
 
 	//4. validate entity

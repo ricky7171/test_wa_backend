@@ -85,7 +85,7 @@ func (r *MongoRepository) FindByPhone(phone string) (*entity.User, error) {
 }
 
 //used to get specific user by id
-func (r *MongoRepository) FindById(userId string) (*entity.User, error) {
+func (r *MongoRepository) FindById(userId primitive.ObjectID) (*entity.User, error) {
 	//1. make ctx with timeout 100 second
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -95,7 +95,7 @@ func (r *MongoRepository) FindById(userId string) (*entity.User, error) {
 	err := r.db.Collection("users").FindOne(ctx, bson.M{"_id": userId}).Decode(&foundUser)
 	defer cancel()
 	if err != nil {
-		return nil, failure.ErrRepoFailedQueryGet()
+		return nil, err
 	}
 
 	//3. return user struct
