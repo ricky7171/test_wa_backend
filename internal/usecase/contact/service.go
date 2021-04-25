@@ -17,8 +17,10 @@ func NewService(r Repository) *Service {
 	}
 }
 
-//used to get Contact by contact
+//used to get Contact
 func (s *Service) GetContactByUser(userId string, userName string) ([]entity.Contact, error) {
+	//note : this function need userId and userName because in contact collection it save not only user id but also user name (to optimize performance when get contact)
+
 	//1. convert contactId to contactObjectId
 	userObjectId, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
