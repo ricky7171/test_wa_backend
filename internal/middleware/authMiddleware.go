@@ -60,7 +60,8 @@ func (a *Auth) Check() gin.HandlerFunc {
 		//5. set value name, phone, ID in gin context
 		c.Set("name", user.Name)
 		c.Set("phone", user.Phone)
-		c.Set("userId", user.ID)
+		c.Set("userId", user.ID.Hex())
+
 		c.Next()
 
 	}
